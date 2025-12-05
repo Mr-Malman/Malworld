@@ -1,0 +1,250 @@
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Rss, Youtube } from "lucide-react";
+
+const AnimatedBackground = () => (
+  <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+    <div
+      className="absolute inset-0"
+      style={{
+        backgroundImage: "radial-gradient(rgba(100, 116, 139, 0.1) 1px, transparent 1px)",
+        backgroundSize: "30px 30px",
+      }}
+    />
+    <div
+      className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0d1117]"
+      style={{ opacity: 0.8 }}
+    />
+  </div>
+);
+
+const ChevronRightIcon = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5" {...props}>
+    <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
+  </svg>
+);
+
+const CodeBracketIcon = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5" {...props}>
+    <path fillRule="evenodd" d="M6.28 5.22a.75.75 0 010 1.06L2.56 10l3.72 3.72a.75.75 0 01-1.06 1.06L.97 10.53a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 0zm7.44 0a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L17.44 10l-3.72-3.72a.75.75 0 010-1.06zM11.378 2.25c.414 0 .75.336.75.75v14a.75.75 0 01-1.5 0v-14c0-.414.336-.75.75-.75z" clipRule="evenodd" />
+  </svg>
+);
+
+const ProfileSidebar = () => (
+  <div className="w-full lg:w-1/4 lg:pr-8 mb-12 lg:mb-0">
+    <div className="lg:sticky lg:top-24">
+      <img
+        // IMPORTANT: Replace this with the path to your profile picture
+        src="https://avatars.githubusercontent.com/u/108175654?v=4"
+        alt="Arya Koner"
+        className="rounded-full w-48 h-48 lg:w-full lg:h-auto border-2 border-gray-700 mb-4"
+      />
+      <h1 className="text-2xl font-bold text-gray-100">Arya Koner</h1>
+      <p className="text-lg text-gray-400 mb-4">Mr-Malman</p>
+      <p className="text-gray-300 mb-4">
+        Cybersecurity enthusiast & developer. Exploring the depths of digital defense and building secure applications.
+      </p>
+      <button className="w-full bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white font-bold py-2 px-4 rounded-md transition-all">
+        Follow
+      </button>
+      <div className="mt-4 pt-4 border-t border-gray-700 text-sm">
+        {/* Add social links or other info here */}
+        <p className="text-gray-400">📍 West Bengal, India</p>
+      </div>
+    </div>
+  </div>
+);
+
+const MediumArticles = () => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        // Using a reliable public RSS to JSON converter
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@arya.koner07`);
+        const data = await res.json();
+        if (data.status === 'ok' && data.items) {
+          // Take the latest 4 articles
+          setArticles(data.items.slice(0, 4) || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch Medium articles:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
+  const stripHtml = (html) => {
+    let doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || "";
+  }
+
+  if (loading) return <p className="text-gray-400">Loading articles...</p>;
+  if (!articles.length) return null; // Don't show the section if no articles are found
+
+  return (
+    <div className="mt-12">
+      <motion.h2
+        className="text-2xl font-bold text-gray-200 mb-4 flex items-center gap-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        <Rss size={20} /> Latest Articles
+      </motion.h2>
+      <div className="grid grid-cols-1 gap-4">
+        {articles.map((article) => (
+          <a href={article.link} key={article.guid} target="_blank" rel="noopener noreferrer" className="block bg-[#161b22]/70 backdrop-blur-sm border border-gray-700 p-4 rounded-lg hover:border-blue-400/50 transition-all duration-300">
+            <h3 className="font-bold text-white mb-2 truncate">{article.title}</h3>
+            <p className="text-gray-400 text-sm line-clamp-2">
+              {stripHtml(article.description).substring(0, 120)}...
+            </p>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const YouTubeVideos = () => {
+  const [videos, setVideos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        // IMPORTANT: Replace 'YOUR_CHANNEL_ID' with your actual YouTube Channel ID.
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?channel_id=UC4rnVgMJ7kTk7of-JuaUtLQ`);
+        const data = await res.json();
+        if (data.status === 'ok' && data.items) {
+          // Extract video ID from the link and take the latest 2 videos.
+          const fetchedVideos = data.items.slice(0, 2).map(item => ({
+            id: item.link.substring(item.link.indexOf("=") + 1),
+            title: item.title,
+          }));
+          setVideos(fetchedVideos);
+        }
+      } catch (error) {
+        console.error("Failed to fetch YouTube videos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, []);
+
+  if (loading) return <p className="text-gray-400 mt-12">Loading videos...</p>;
+  if (!videos.length) return null;
+
+  return (
+    <div className="mt-12">
+      <motion.h2
+        className="text-2xl font-bold text-gray-200 mb-4 flex items-center gap-2"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        <Youtube size={20} /> Latest Videos
+      </motion.h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {videos.map((video) => (
+          <div key={video.id} className="bg-[#161b22]/70 border border-gray-700 p-4 rounded-lg">
+            <div className="aspect-w-16 aspect-h-9 mb-3">
+              <iframe
+                src={`https://www.youtube.com/embed/${video.id}`}
+                title={video.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full rounded"
+              ></iframe>
+            </div>
+            <h3 className="font-bold text-white truncate">{video.title}</h3>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Home = () => {
+  return (
+    <div className="relative text-gray-300 font-sans min-h-screen overflow-hidden bg-[#0d1117]">
+      <AnimatedBackground />
+      <main className="container mx-auto px-6 py-24 relative z-10 pt-32">
+        <div className="lg:flex">
+          {/* Profile Sidebar */}
+          <ProfileSidebar />
+
+          {/* Main Content */}
+          <div className="w-full lg:w-3/4 lg:pl-8">
+            <motion.h2
+              className="text-2xl font-bold text-gray-200 mb-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
+            >
+              Pinned
+            </motion.h2>
+
+            {/* Pinned Items Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+              {[
+                { title: "Learn Cybersecurity", desc: "From basics to advanced concepts" },
+                { title: "Practice Labs", desc: "Hands-on security challenges" },
+                { title: "Expert Guidance", desc: "Learn from industry professionals" },
+                { title: "Certifications", desc: "Industry-recognized credentials" }
+              ].map((service, i) => (
+                <div
+                  key={i}
+                  className="bg-[#161b22]/70 backdrop-blur-sm border border-gray-700 p-5 rounded-lg hover:border-blue-400/50 transition-all duration-300"
+                >
+                  <h3 className="text-lg font-bold text-white mb-2">{service.title}</h3>
+                  <p className="text-gray-400 text-sm">{service.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* GitHub Activity Section */}
+            <div className="w-full">
+              <motion.h2
+                className="text-2xl font-bold text-gray-200 mb-4"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.8 }}
+              >
+                GitHub Activity
+              </motion.h2>
+              <motion.div
+                className="bg-[#161b22]/70 backdrop-blur-sm border border-gray-700 p-4 rounded-lg flex justify-center"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+              >
+                <img
+                  src="https://ghchart.rshah.org/Mr-Malman"
+                  alt="GitHub Activity Chart"
+                  className="w-full max-w-4xl rounded"
+                />
+              </motion.div>
+            </div>
+
+            {/* Medium Articles Section */}
+            <MediumArticles />
+
+            {/* YouTube Videos Section */}
+            <YouTubeVideos />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Home;
