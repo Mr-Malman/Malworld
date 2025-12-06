@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Rss, Youtube } from "lucide-react";
+import { Rss, Youtube, Download, Globe, Linkedin, Twitter, Github } from "lucide-react";
 
 const AnimatedBackground = () => (
   <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
@@ -42,14 +42,31 @@ const ProfileSidebar = () => (
       <h1 className="text-2xl font-bold text-gray-100">Arya Koner</h1>
       <p className="text-lg text-gray-400 mb-4">Mr-Malman</p>
       <p className="text-gray-300 mb-4">
-        Cybersecurity enthusiast & developer. Exploring the depths of digital defense and building secure applications.
+        Malware Analyst & Developer. Dissecting hostile code to understand threats and building frameworks to stop them and i am a Cybersecurity content creator on YouTube and social media. I make videos and conduct workshops to help people stay secure online.
       </p>
-      <button className="w-full bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white font-bold py-2 px-4 rounded-md transition-all">
-        Follow
-      </button>
+      <a
+        href="/Arya_Koner_CV.pdf" // IMPORTANT: Make sure your CV file is in the `public` folder and the name matches.
+        download
+        className="flex items-center justify-center gap-2 w-full bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white font-bold py-2 px-4 rounded-md transition-all"
+      >
+        <Download size={16} />
+        <span>Download CV</span>
+      </a>
       <div className="mt-4 pt-4 border-t border-gray-700 text-sm">
-        {/* Add social links or other info here */}
-        <p className="text-gray-400">📍 West Bengal, India</p>
+        <div className="flex items-center gap-2 text-gray-400">
+          <p>📍 Noida, India</p>
+        </div>
+        <div className="flex items-center gap-2 text-gray-400 mt-2">
+          <Globe size={16} />
+          <span>English, Hindi, Bengali</span>
+        </div>
+        <div className="flex items-center gap-4 mt-4">
+          {/* IMPORTANT: Replace '#' with your actual social media links */}
+          <a href="https://github.com/Mr-Malman" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white"><Github size={20} /></a>
+          <a href="https://www.linkedin.com/in/hackarya007/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white"><Linkedin size={20} /></a>
+          <a href="https://x.com/mr_malman" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white"><Twitter size={20} /></a>
+          <a href="https://www.youtube.com/channel/UC4rnVgMJ7kTk7of-JuaUtLQ" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white"><Youtube size={20} /></a>
+        </div>
       </div>
     </div>
   </div>
@@ -173,7 +190,7 @@ const YouTubeVideos = () => {
   );
 };
 
-const Home = () => {
+const Home = ({ setCurrentPage }) => {
   return (
     <div className="relative text-gray-300 font-sans min-h-screen overflow-hidden bg-[#0d1117]">
       <AnimatedBackground />
@@ -196,18 +213,19 @@ const Home = () => {
             {/* Pinned Items Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
               {[
-                { title: "Learn Cybersecurity", desc: "From basics to advanced concepts" },
-                { title: "Practice Labs", desc: "Hands-on security challenges" },
-                { title: "Expert Guidance", desc: "Learn from industry professionals" },
-                { title: "Certifications", desc: "Industry-recognized credentials" }
-              ].map((service, i) => (
-                <div
+                { title: "Work Experience", desc: "View my professional journey and roles.", page: "projects" },
+                { title: "Projects", desc: "Explore my portfolio of security projects.", page: "projects" },
+                { title: "Certifications", desc: "See my industry credentials and qualifications.", page: "projects" },
+                { title: "Events & Engagements", desc: "Check out my workshops and speaking events.", page: "about" }
+              ].map((item, i) => (
+                <button
                   key={i}
-                  className="bg-[#161b22]/70 backdrop-blur-sm border border-gray-700 p-5 rounded-lg hover:border-blue-400/50 transition-all duration-300"
+                  onClick={() => setCurrentPage(item.page)}
+                  className="text-left bg-[#161b22]/70 backdrop-blur-sm border border-gray-700 p-5 rounded-lg hover:border-blue-400/50 transition-all duration-300"
                 >
-                  <h3 className="text-lg font-bold text-white mb-2">{service.title}</h3>
-                  <p className="text-gray-400 text-sm">{service.desc}</p>
-                </div>
+                  <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+                  <p className="text-gray-400 text-sm">{item.desc}</p>
+                </button>
               ))}
             </div>
 

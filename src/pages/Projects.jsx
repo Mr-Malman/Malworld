@@ -1,85 +1,291 @@
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Briefcase, FolderGit2, Award, Eye, Github } from "lucide-react";
+
+const workExperience = [
+  {
+    id: 1,
+    title: "Penetration Tester",
+    company: "Warsharks",
+    companyLink: "#", // Add company link
+    companyLogo: "/logos/warsharks.png", // Add logo to public/logos
+    period: "Part-Time",
+    location: "Remote - Noida, Uttar Pradesh",
+    description: "Conducted vulnerability assessments, exploited security flaws, and prepared reports with remediation strategies to strengthen client systems.",
+    tech: ["Vulnerability Assessment", "Penetration Testing", "Reporting"],
+    certificateLink: "/certificates/warsharks-cert.pdf" // Add certificate path
+  },
+  {
+    id: 2,
+    title: "Cyber Security Instructor",
+    company: "MRGS Infoway",
+    companyLink: "#",
+    companyLogo: "/logos/mrgs.png",
+    period: "Feb 2025 – April 2025",
+    location: "Remote - Kolkata, West Bengal",
+    description: "Cyber Vahini Project – Training female students in cybersecurity fundamentals, VAPT, and digital security.",
+    tech: ["Training", "VAPT", "Cybersecurity Fundamentals"],
+    certificateLink: null // No certificate for this one
+  },
+  {
+    id: 3,
+    title: "VAPT Tester",
+    company: "Hacktify Cyber Security",
+    companyLink: "#",
+    companyLogo: "/logos/hacktify.png",
+    period: "Undisclosed",
+    location: "Remote - Mumbai, India",
+    description: "Performed advanced penetration testing on enterprise networks, leveraging Burp Suite, Nmap, and Metasploit to identify critical vulnerabilities and provide comprehensive risk mitigation strategies.",
+    tech: ["Burp Suite", "Nmap", "Metasploit", "Penetration Testing"],
+    certificateLink: "/certificates/hacktify-cert.pdf"
+  },
+  {
+    id: 4,
+    title: "Junior Cyber Crime Investigator",
+    company: "EDCI",
+    companyLink: "#",
+    companyLogo: "/logos/edci.png",
+    period: "Undisclosed",
+    location: "Onsite - Kolkata, West Bengal",
+    description: "Specialized in digital forensics and incident response, utilizing Autopsy, FTK, EnCase, and Wireshark for deep forensic analysis and cyber threat tracing.",
+    tech: ["Autopsy", "FTK", "EnCase", "Wireshark", "Forensics"],
+    certificateLink: "/certificates/edci-cert.pdf"
+  },
+  {
+    id: 5,
+    title: "Guest Lecturer",
+    company: "Behala Government Polytechnic",
+    companyLink: "#",
+    companyLogo: "/logos/behala.png",
+    period: "Undisclosed",
+    location: "Onsite - Kolkata, West Bengal",
+    description: "Delivered expert lectures on Networking and VAPT, guiding students through cybersecurity concepts and penetration testing methodologies.",
+    tech: ["Lecturing", "Networking", "VAPT"],
+    certificateLink: null
+  },
+  {
+    id: 6,
+    title: "Guest Lecturer",
+    company: "Sister Nivedita University",
+    companyLink: "#",
+    companyLogo: "/logos/snu.png",
+    period: "June 2022 – Sep 2023",
+    location: "Onsite - Kolkata, West Bengal",
+    description: "Delivered insightful lectures on Digital Forensics and Cybersecurity, educating students on threat analysis and forensic investigation techniques.",
+    tech: ["Digital Forensics", "Cybersecurity", "Lecturing"],
+    certificateLink: null
+  },
+  {
+    id: 7,
+    title: "VAPT Intern",
+    company: "Indian Cyber Security Solutions",
+    companyLink: "#",
+    companyLogo: "/logos/icss.png",
+    period: "July 2021 – May 2022",
+    location: "On-site - Kolkata, West Bengal",
+    description: "Conducted network vulnerability assessments and penetration testing using tools like Nmap, Nessus, Burp Suite, and Metasploit to identify and mitigate security risks.",
+    tech: ["Nmap", "Nessus", "Burp Suite", "Metasploit"],
+    certificateLink: "/certificates/icss-cert.pdf"
+  }
+];
+
+const certifications = [
+  {
+    id: 1,
+    name: "CEH v13 AI",
+    issuer: "EC-Council (Pursuing)",
+    link: "#",
+    image: "/certs/ceh.png" // Add image to public/certs
+  },
+  {
+    id: 2,
+    name: "CEH Master",
+    issuer: "EC-Council (Pursuing)",
+    link: "#",
+    image: "/certs/ceh-master.png" // Add image to public/certs
+  },
+  {
+    id: 3,
+    name: "CompTIA Security+",
+    issuer: "CompTIA (Pursuing)",
+    link: "#",
+    image: "/certs/comptia.png" // Add image to public/certs
+  },
+  {
+    id: 4,
+    name: "Cisco Cyber Threat Management",
+    issuer: "Cisco",
+    link: "#",
+    image: "/certs/cisco.png" // Add image to public/certs
+  },
+  {
+    id: 5,
+    name: "Google Cybersecurity Professional Certificate",
+    issuer: "Google",
+    link: "#",
+    image: "/certs/google.png" // Add image to public/certs
+  },
+  {
+    id: 6,
+    name: "Offensive Security Certified Professional (OSCP)",
+    issuer: "Offensive Security",
+    link: "#",
+    image: "/certs/oscp.png" // Add image to public/certs
+  }
+];
+
+const projectsData = [
+  {
+    id: 1,
+    title: "BLACKICE AI MCP Agents v4.0",
+    description: "Advanced AI-Powered Penetration Testing Framework with Autonomous Agents, Intelligent Decision Engine, and 150+ Security Tools.",
+    tech: ["AI", "Penetration Testing", "Automation"],
+    image: "/projects/blackice.jpg", // Add image to public/projects
+    githubLink: "#" // Add GitHub link
+  },
+  {
+    id: 2,
+    title: "Honeypot",
+    description: "Designed to detect, log, and analyze unauthorized access using multi-protocol honeypots (SSH, FTP, DNS), real-time monitoring, and automated IP blacklisting.",
+    tech: ["Honeypot", "Intrusion Detection", "Threat Analysis"],
+    image: "/projects/honeypot.jpg", // Add image to public/projects
+    githubLink: "#"
+  },
+  {
+    id: 3,
+    title: "BADNET v1",
+    description: "AI-powered cyber attack detection and prediction system with real-time monitoring, leveraging ML algorithms for DoS, Probe, R2L, and U2R attacks.",
+    tech: ["Machine Learning", "Attack Detection", "CLI"],
+    image: "/projects/badnet.jpg", // Add image to public/projects
+    githubLink: "#"
+  }
+];
 
 const Projects = () => {
-  const projects = [
-    {
-      id: 1,
-      title: "Network Security Analyzer",
-      description: "Advanced network packet analysis tool that captures and analyzes network traffic in real-time. Identifies suspicious activity and potential security threats using deep packet inspection.",
-      tech: ["Python", "Scapy", "Network Security", "Real-time Analysis"],
-      details: "This tool monitors network packets, detects anomalies, and alerts on suspicious patterns. It includes features for protocol analysis, traffic filtering, and threat classification."
-    },
-    {
-      id: 2,
-      title: "Vulnerability Scanner",
-      description: "Automated vulnerability detection system that scans networks and systems for common security vulnerabilities and misconfigurations.",
-      tech: ["Bash", "Nmap", "Python", "CVE Database"],
-      details: "Performs comprehensive security scans, identifies open ports, detects outdated services, and cross-references against known vulnerability databases."
-    },
-    {
-      id: 3,
-      title: "Security Auditing Tool",
-      description: "Comprehensive security audit framework for assessing system and network security posture. Generates detailed compliance reports.",
-      tech: ["Python", "Security", "Forensics", "Reporting"],
-      details: "Conducts system hardening checks, validates security policies, performs log analysis, and generates comprehensive audit reports for compliance."
-    },
-    {
-      id: 4,
-      title: "Malware Analysis Lab",
-      description: "Isolated environment for analyzing malware behavior and reverse engineering executable files safely.",
-      tech: ["Reverse Engineering", "Sandbox", "Disassembly", "Dynamic Analysis"],
-      details: "Provides tools for safe malware analysis, behavioral monitoring, and signature extraction without risking system compromise."
-    },
-    {
-      id: 5,
-      title: "Cryptography Toolkit",
-      description: "Educational toolkit implementing various cryptographic algorithms and security protocols from scratch.",
-      tech: ["Cryptography", "Python", "RSA", "AES"],
-      details: "Demonstrates encryption, hashing, digital signatures, and secure key exchange protocols with educational implementations."
-    },
-    {
-      id: 6,
-      title: "Web Application Firewall",
-      description: "Custom WAF implementation to protect web applications from common OWASP Top 10 vulnerabilities.",
-      tech: ["Python", "Flask", "Web Security", "WAF"],
-      details: "Implements request filtering, payload inspection, and threat detection for web application protection."
-    }
-  ];
+  const [activeTab, setActiveTab] = useState('experience');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#090909] via-[#0f0f0f] to-[#1f0a10] text-white pt-32 pb-20">
+    <div className="min-h-screen bg-[#0d1117] text-gray-300 pt-32 pb-20">
       <div className="max-w-6xl mx-auto px-6">
         <motion.h1
-          className="text-5xl md:text-6xl font-extrabold mb-12 bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text"
+          className="text-5xl md:text-6xl font-extrabold mb-16 text-gray-100"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
         >
-          My Projects
+          Experience & Projects
         </motion.h1>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {projects.map((project, i) => (
+        {/* Tab Section */}
+        <div className="mb-12">
+          <div className="flex border-b border-gray-700">
+            <button onClick={() => setActiveTab('experience')} className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-colors ${activeTab === 'experience' ? 'text-white border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}`}>
+              <Briefcase size={16} /> Work Experience
+            </button>
+            <button onClick={() => setActiveTab('projects')} className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-colors ${activeTab === 'projects' ? 'text-white border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}`}>
+              <FolderGit2 size={16} /> Projects
+            </button>
+            <button onClick={() => setActiveTab('certifications')} className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-colors ${activeTab === 'certifications' ? 'text-white border-b-2 border-blue-500' : 'text-gray-400 hover:text-white'}`}>
+              <Award size={16} /> Certifications
+            </button>
+          </div>
+
+          <AnimatePresence mode="wait">
             <motion.div
-              key={project.id}
-              className="bg-white/5 backdrop-blur-lg border border-red-500/20 p-8 rounded-lg hover:border-red-500/60 transition-all hover:scale-105"
+              key={activeTab}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: i * 0.1 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="mt-8"
             >
-              <h3 className="text-2xl font-bold text-white mb-4">{project.title}</h3>
-              <p className="text-gray-400 mb-4">{project.description}</p>
-              <p className="text-gray-500 text-sm mb-6">{project.details}</p>
-              <div className="flex flex-wrap gap-2">
-                {project.tech.map((tech) => (
-                  <span key={tech} className="bg-red-500/10 text-red-400 px-3 py-1 rounded text-sm">
-                    {tech}
-                  </span>
-                ))}
-              </div>
+              {/* Work Experience Content */}
+              {activeTab === 'experience' && (
+                <div className="space-y-8">
+                  {workExperience.map((job, i) => {
+                    let logoUrl = job.companyLogo; // Fallback to local logo if specified
+                    try {
+                      if (job.companyLink && job.companyLink !== '#') {
+                        const domain = new URL(job.companyLink).hostname;
+                        logoUrl = `https://logo.clearbit.com/${domain}`;
+                      }
+                    } catch (e) {
+                      console.error("Invalid company URL, using fallback logo:", job.companyLink);
+                    }
+
+                    return (
+                      <motion.div key={job.id} className="flex gap-5 bg-[#161b22]/70 border border-gray-700 p-6 rounded-lg" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: i * 0.1 }}>
+                        <a href={job.companyLink} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+                          <img src={logoUrl} alt={`${job.company} logo`} className="w-16 h-16 object-contain rounded-md bg-white p-1" onError={(e) => { e.currentTarget.src = '/logos/placeholder-logo.png'; }} />
+                        </a>
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start mb-1">
+                          <div>
+                            <h3 className="text-xl font-bold text-white">{job.title}</h3>
+                            <a href={job.companyLink} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">{job.company}</a>
+                          </div>
+                          <span className="text-sm text-gray-500 text-right">{job.period}</span>
+                        </div>
+                        <p className="text-xs text-gray-500 mb-3">{job.location}</p>
+                        <p className="text-gray-400 mb-4 text-sm">{job.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {job.tech.map((tech) => (
+                            <span key={tech} className="bg-blue-900/30 text-blue-300 px-3 py-1 rounded-full text-xs">{tech}</span>
+                          ))}
+                        </div>
+                  {job.certificateLink && (
+                    <a href={job.certificateLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-blue-400 hover:underline mt-4">
+                      <Eye size={14} /> View Certificate
+                    </a>
+                  )}
+                      </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Projects Content */}
+              {activeTab === 'projects' && (
+                <div className="grid md:grid-cols-2 gap-8">
+                  {projectsData.map((project, i) => (
+                    <motion.div key={project.id} className="bg-[#161b22]/70 border border-gray-700 rounded-lg flex flex-col overflow-hidden" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: i * 0.1 }}>
+                      <img src={project.image} alt={project.title} className="w-full h-40 object-cover" />
+                      <div className="p-6 flex flex-col flex-grow">
+                        <h3 className="text-xl font-bold text-white mb-3">{project.title}</h3>
+                        <p className="text-gray-400 mb-4 flex-grow text-sm">{project.description}</p>
+                        <div className="flex flex-wrap gap-2">
+                          {project.tech.map((tech) => (
+                            <span key={tech} className="bg-blue-900/30 text-blue-300 px-3 py-1 rounded-full text-xs">{tech}</span>
+                          ))}
+                        </div>
+                        {project.githubLink && (
+                          <a href={project.githubLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm text-blue-400 hover:underline mt-4">
+                            <Github size={14} /> View on GitHub
+                          </a>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+
+              {/* Certifications Content */}
+              {activeTab === 'certifications' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {certifications.map((cert) => (
+                    <a href={cert.link} key={cert.id} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 bg-[#161b22]/70 border border-gray-700 p-4 rounded-lg hover:border-blue-400/50 transition-colors">
+                      <img src={cert.image} alt={cert.name} className="w-12 h-12 object-contain bg-white rounded-md p-1" />
+                      <div>
+                        <p className="font-semibold text-white">{cert.name}</p>
+                        <p className="text-sm text-gray-400">{cert.issuer}</p>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
             </motion.div>
-          ))}
+          </AnimatePresence>
         </div>
       </div>
     </div>
