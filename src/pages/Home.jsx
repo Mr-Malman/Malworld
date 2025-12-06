@@ -42,7 +42,7 @@ const ProfileSidebar = () => (
       <h1 className="text-2xl font-bold text-gray-100">Arya Koner</h1>
       <p className="text-lg text-gray-400 mb-4">Mr-Malman</p>
       <p className="text-gray-300 mb-4">
-        Malware Analyst & Developer. Dissecting hostile code to understand threats and building frameworks to stop them and i am a Cybersecurity content creator on YouTube and social media. I make videos and conduct workshops to help people stay secure online.
+        Malware Analyst & Developer, dissecting hostile code to understand threats and build resilient frameworks. I'm also a Cybersecurity content creator on YouTube and social media, making videos and conducting workshops to help people stay secure online.
       </p>
       <a
         href="/Arya_Koner_CV.pdf" // IMPORTANT: Make sure your CV file is in the `public` folder and the name matches.
@@ -116,11 +116,18 @@ const MediumArticles = () => {
       </motion.h2>
       <div className="grid grid-cols-1 gap-4">
         {articles.map((article) => (
-          <a href={article.link} key={article.guid} target="_blank" rel="noopener noreferrer" className="block bg-[#161b22]/70 backdrop-blur-sm border border-gray-700 p-4 rounded-lg hover:border-blue-400/50 transition-all duration-300">
-            <h3 className="font-bold text-white mb-2 truncate">{article.title}</h3>
-            <p className="text-gray-400 text-sm line-clamp-2">
-              {stripHtml(article.description).substring(0, 120)}...
-            </p>
+          <a href={article.link} key={article.guid} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 bg-[#161b22]/70 backdrop-blur-sm border border-gray-700 p-4 rounded-lg hover:border-blue-400/50 transition-all duration-300">
+            <img
+              src={article.thumbnail}
+              alt={article.title}
+              className="w-24 h-24 object-cover rounded-md hidden sm:block"
+            />
+            <div>
+              <h3 className="font-bold text-white mb-1 line-clamp-2">{article.title}</h3>
+              <p className="text-gray-400 text-sm line-clamp-2">
+                {stripHtml(article.description).substring(0, 120)}...
+              </p>
+            </div>
           </a>
         ))}
       </div>
@@ -190,7 +197,7 @@ const YouTubeVideos = () => {
   );
 };
 
-const Home = ({ setCurrentPage }) => {
+const Home = ({ handleNavigation }) => {
   return (
     <div className="relative text-gray-300 font-sans min-h-screen overflow-hidden bg-[#0d1117]">
       <AnimatedBackground />
@@ -213,14 +220,14 @@ const Home = ({ setCurrentPage }) => {
             {/* Pinned Items Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
               {[
-                { title: "Work Experience", desc: "View my professional journey and roles.", page: "projects" },
-                { title: "Projects", desc: "Explore my portfolio of security projects.", page: "projects" },
-                { title: "Certifications", desc: "See my industry credentials and qualifications.", page: "projects" },
-                { title: "Events & Engagements", desc: "Check out my workshops and speaking events.", page: "about" }
+                { title: "Work Experience", desc: "View my professional journey and roles.", page: "projects", hash: "experience" },
+                { title: "Projects", desc: "Explore my portfolio of security projects.", page: "projects", hash: "projects" },
+                { title: "Certifications", desc: "See my industry credentials and qualifications.", page: "projects", hash: "certifications" },
+                { title: "Events & Engagements", desc: "Check out my workshops and speaking events.", page: "about", hash: "events" }
               ].map((item, i) => (
                 <button
                   key={i}
-                  onClick={() => setCurrentPage(item.page)}
+                  onClick={() => handleNavigation(item.page, item.hash)}
                   className="text-left bg-[#161b22]/70 backdrop-blur-sm border border-gray-700 p-5 rounded-lg hover:border-blue-400/50 transition-all duration-300"
                 >
                   <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
@@ -246,7 +253,7 @@ const Home = ({ setCurrentPage }) => {
                 transition={{ duration: 0.8 }}
               >
                 <img
-                  src="https://ghchart.rshah.org/Mr-Malman"
+                  src="https://ghchart.rshah.org/216e39/Mr-Malman"
                   alt="GitHub Activity Chart"
                   className="w-full max-w-4xl rounded"
                 />

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence, useIsPresent } from "framer-motion";
 import { Briefcase, FolderGit2, Award, Eye, Github } from "lucide-react";
 
 const workExperience = [
@@ -161,8 +161,15 @@ const projectsData = [
   }
 ];
 
-const Projects = () => {
+const Projects = ({ hash }) => {
   const [activeTab, setActiveTab] = useState('experience');
+
+  useEffect(() => {
+    // If a hash is provided, set the active tab accordingly
+    if (hash === 'projects' || hash === 'certifications') {
+      setActiveTab(hash);
+    }
+  }, [hash]);
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-gray-300 pt-32 pb-20">

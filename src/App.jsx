@@ -15,7 +15,7 @@ const GithubIcon = (props) => (
 );
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState("home");
+  const [navigation, setNavigation] = useState({ page: "home", hash: "" });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -28,26 +28,31 @@ const App = () => {
   }, []);
 
   const navItems = [
-    { name: "Overview", page: "home", icon: <Book size={16} /> },
-    { name: "About", page: "about", icon: <User size={16} /> },
-    { name: "Projects", page: "projects", icon: <FolderGit2 size={16} /> },
-    { name: "Contact", page: "contact", icon: <Mail size={16} /> },
+    { name: "Overview", page: "home", hash: "", icon: <Book size={16} /> },
+    { name: "About", page: "about", hash: "", icon: <User size={16} /> },
+    { name: "Projects", page: "projects", hash: "", icon: <FolderGit2 size={16} /> },
+    { name: "Contact", page: "contact", hash: "", icon: <Mail size={16} /> },
   ];
 
+  const handleNavigation = (page, hash = "") => {
+    setNavigation({ page, hash });
+    window.scrollTo(0, 0);
+  };
+
   const renderPage = () => {
-    switch (currentPage) {
+    switch (navigation.page) {
       case "home":
-        return <Home setCurrentPage={setCurrentPage} />;
+        return <Home handleNavigation={handleNavigation} />;
       case "about":
-        return <About />;
+        return <About hash={navigation.hash} />;
       case "projects":
-        return <Projects />;
+        return <Projects hash={navigation.hash} />;
       case "portfolio":
         return <Portfolio />;
       case "contact":
         return <Contact />;
       default:
-        return <Home />;
+        return <Home handleNavigation={handleNavigation} />;
     }
   };
 
@@ -61,7 +66,7 @@ const App = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-4">
-              <button onClick={() => setCurrentPage("home")} className="text-gray-100 hover:text-gray-300">
+              <button onClick={() => handleNavigation("home")} className="text-gray-100 hover:text-gray-300">
                 <GithubIcon className="h-8 w-8" />
               </button>
               <div className="hidden md:flex items-center gap-2">
@@ -78,9 +83,9 @@ const App = () => {
               {navItems.map((item) => (
                 <button
                   key={item.name}
-                  onClick={() => setCurrentPage(item.page)}
+                  onClick={() => handleNavigation(item.page, item.hash)}
                   className={`flex items-center gap-2 text-sm font-semibold px-3 py-2 rounded-md transition-colors ${
-                    currentPage === item.page
+                    navigation.page === item.page
                       ? "text-white bg-gray-800/80"
                       : "text-gray-300 hover:bg-gray-800/80 hover:text-white"
                   }`}
@@ -115,8 +120,8 @@ const App = () => {
                   <button
                     key={item.name}
                     onClick={() => {
-                      setCurrentPage(item.page);
-                      setMobileMenuOpen(false);
+                      handleNavigation(item.page, item.hash);
+                      setMobileMenuOpen(false)
                     }}
                     className="flex items-center gap-3 w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-700 rounded-md"
                   >

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GraduationCap, Calendar } from "lucide-react";
 
@@ -40,8 +40,14 @@ const eventsData = [
   },
 ];
 
-const About = () => {
+const About = ({ hash }) => {
   const [activeTab, setActiveTab] = useState('education');
+
+  useEffect(() => {
+    if (hash === 'events') {
+      setActiveTab('events');
+    }
+  }, [hash]);
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-gray-300 pt-32 pb-20">
@@ -63,7 +69,7 @@ const About = () => {
             transition={{ duration: 0.8 }}
           >
             <img 
-              src="/Arya.jpeg" // IMPORTANT: Replace with the actual name of your image file in the `public` folder.
+              src="/Arya.jpg"
               alt="Arya Koner" 
               className="rounded-lg w-full border-2 border-gray-700" 
             />
