@@ -76,14 +76,17 @@ const ProfileSidebar = () => (
 const MediumArticles = () => {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        // Using a reliable public RSS to JSON converter
-        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@arya.koner07`);
+        // Using a different RSS to JSON converter that is more reliable for Medium
+        const mediumUsername = "arya.koner07";
+        const res = await fetch(`https://api.json-feeds.org/convert?url=https%3A%2F%2Fmedium.com%2Ffeed%2F%40${mediumUsername}`);
         const data = await res.json();
-        if (data.status === 'ok' && data.items) {
+        // The new API has a different response structure
+        if (data.items) {
           // Take the latest 4 articles
           setArticles(data.items.slice(0, 4) || []);
         }
@@ -103,7 +106,13 @@ const MediumArticles = () => {
   }
 
   if (loading) return <p className="text-gray-400">Loading articles...</p>;
-  if (!articles.length) return null; // Don't show the section if no articles are found
+  if (error) return <p className="text-red-400">Failed to load articles. Please try again later.</p>;
+  if (!articles.length) {
+    // It's better to inform the user that no articles were found than to show nothing.
+    return (
+      <div className="mt-12"><p className="text-gray-400">No articles found.</p></div>
+    );
+  }
 
   return (
     <div className="mt-12">
@@ -124,7 +133,7 @@ const MediumArticles = () => {
               className="w-24 h-24 object-cover rounded-md hidden sm:block"
             />
             <div>
-              <h3 className="font-bold text-white mb-1 line-clamp-2">{article.title}</h3>
+              <h3 className="font-bold text-white mb-1 line-clamp-2">{article.external_url ? article.title : article.title}</h3>
               <p className="text-gray-400 text-sm line-clamp-2">
                 {stripHtml(article.description).substring(0, 120)}...
               </p>
