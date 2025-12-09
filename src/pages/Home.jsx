@@ -81,17 +81,19 @@ const MediumArticles = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        // Using a CORS proxy to prevent request blocking issues
-        const corsProxy = "https://cors-anywhere.herokuapp.com/";
+        // Using a dedicated Cloudflare Worker as a reliable proxy to fetch the RSS feed.
+        // This avoids issues with public CORS proxies.
         const mediumFeedUrl = "https://mr-malman.medium.com/feed";
-        const rssToJsonApi = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(mediumFeedUrl)}`;
-        
-        const res = await fetch(corsProxy + rssToJsonApi);
+        const workerUrl = `https://medium-rss-proxy.aryakoner.workers.dev/?url=${encodeURIComponent(mediumFeedUrl)}`;
+
+        const res = await fetch(workerUrl);
         const data = await res.json();
 
         if (data.status === 'ok' && data.items) {
-          // Take the latest 4 articles
           setArticles(data.items.slice(0, 4) || []);
+        } else {
+          // If the API returns an error status, capture it.
+          throw new Error(data.message || "Failed to fetch articles from API.");
         }
       } catch (error) {
         setError(error);
