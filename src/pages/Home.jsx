@@ -45,12 +45,13 @@ const ProfileSidebar = () => (
         Malware Analyst & Developer, dissecting hostile code to understand threats and build resilient frameworks. I'm also a Cybersecurity content creator on YouTube and social media, making videos and conducting workshops to help people stay secure online.
       </p>
       <a
-        href="/Arya_Koner_CV.pdf" // IMPORTANT: Make sure your CV file is in the `public` folder and the name matches.
-        download
+        href="https://drive.google.com/file/d/1FhlBfGgGETmnM9_YQrBBwVJDiHBifHvS/view?usp=sharing" // IMPORTANT: Replace with your Google Drive share link.
+        target="_blank"
+        rel="noopener noreferrer"
         className="flex items-center justify-center gap-2 w-full bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white font-bold py-2 px-4 rounded-md transition-all"
       >
         <Download size={16} />
-        <span>Download CV</span>
+        <span>View CV</span>
       </a>
       <div className="mt-4 pt-4 border-t border-gray-700 text-sm">
         <div className="flex items-center gap-2 text-gray-400">
