@@ -82,8 +82,8 @@ const MediumArticles = () => {
     const fetchArticles = async () => {
       try {
         // Using a different RSS to JSON converter that is more reliable for Medium
-        const mediumUsername = "mr-malman";
-        const res = await fetch(`https://api.json-feeds.org/convert?url=https%3A%2F%2Fmedium.com%2Ffeed%2F%40${mediumUsername}`);
+        const mediumFeedUrl = "https://mr-malman.medium.com/feed";
+        const res = await fetch(`https://api.json-feeds.org/convert?url=${encodeURIComponent(mediumFeedUrl)}`);
         const data = await res.json();
         // The new API has a different response structure
         if (data.items) {
