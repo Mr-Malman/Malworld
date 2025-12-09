@@ -73,84 +73,6 @@ const ProfileSidebar = () => (
   </div>
 );
 
-const MediumArticles = () => {
-  const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        // Using a dedicated Cloudflare Worker as a reliable proxy to fetch the RSS feed.
-        // This avoids issues with public CORS proxies.
-        const mediumFeedUrl = "https://mr-malman.medium.com/feed";
-        const workerUrl = `https://medium-rss-proxy.aryakoner.workers.dev/?url=${encodeURIComponent(mediumFeedUrl)}`;
-
-        const res = await fetch(workerUrl);
-        const data = await res.json();
-
-        if (data.status === 'ok' && data.items) {
-          setArticles(data.items.slice(0, 4) || []);
-        } else {
-          // If the API returns an error status, capture it.
-          throw new Error(data.message || "Failed to fetch articles from API.");
-        }
-      } catch (error) {
-        setError(error);
-        console.error("Failed to fetch Medium articles:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArticles();
-  }, []);
-
-  const stripHtml = (html) => {
-    let doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.body.textContent || "";
-  }
-
-  if (loading) return <p className="text-gray-400">Loading articles...</p>;
-  if (error) return <p className="text-red-400">Failed to load articles. Please try again later.</p>;
-  if (!articles.length) {
-    // It's better to inform the user that no articles were found than to show nothing.
-    return (
-      <div className="mt-12"><p className="text-gray-400">No articles found.</p></div>
-    );
-  }
-
-  return (
-    <div className="mt-12">
-      <motion.h2
-        className="text-2xl font-bold text-gray-200 mb-4 flex items-center gap-2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        <Rss size={20} /> Latest Articles
-      </motion.h2>
-      <div className="grid grid-cols-1 gap-4">
-        {articles.map((article) => (
-          <a href={article.link} key={article.guid} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 bg-[#161b22]/70 backdrop-blur-sm border border-gray-700 p-4 rounded-lg hover:border-blue-400/50 transition-all duration-300">
-            <img
-              src={article.thumbnail}
-              alt={article.title}
-              className="w-24 h-24 object-cover rounded-md hidden sm:block"
-            />
-            <div>
-              <h3 className="font-bold text-white mb-1 line-clamp-2">{article.external_url ? article.title : article.title}</h3>
-              <p className="text-gray-400 text-sm line-clamp-2">
-                {stripHtml(article.description).substring(0, 120)}...
-              </p>
-            </div>
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 const YouTubeVideos = () => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -276,8 +198,28 @@ const Home = ({ handleNavigation }) => {
               </motion.div>
             </div>
 
-            {/* Medium Articles Section */}
-            <MediumArticles />
+            {/* Medium Button Section */}
+            <div className="mt-12">
+              <motion.h2
+                className="text-2xl font-bold text-gray-200 mb-4 flex items-center gap-2"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.8 }}
+              >
+                <Rss size={20} /> Latest Articles
+              </motion.h2>
+              <div className="text-center bg-[#161b22]/70 backdrop-blur-sm border border-gray-700 p-6 rounded-lg">
+                <p className="text-gray-400 mb-4">I share my latest research and articles on Medium.</p>
+                <a
+                  href="https://mr-malman.medium.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white font-bold py-2 px-4 rounded-md transition-all"
+                >
+                  View Articles on Medium <ChevronRightIcon className="w-4 h-4" />
+                </a>
+              </div>
+            </div>
 
             {/* YouTube Videos Section */}
             <YouTubeVideos />
