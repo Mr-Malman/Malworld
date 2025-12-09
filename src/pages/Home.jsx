@@ -81,16 +81,20 @@ const MediumArticles = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        // Using a different RSS to JSON converter that is more reliable for Medium
+        // Using a CORS proxy to prevent request blocking issues
+        const corsProxy = "https://cors-anywhere.herokuapp.com/";
         const mediumFeedUrl = "https://mr-malman.medium.com/feed";
-        const res = await fetch(`https://api.json-feeds.org/convert?url=${encodeURIComponent(mediumFeedUrl)}`);
+        const rssToJsonApi = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(mediumFeedUrl)}`;
+        
+        const res = await fetch(corsProxy + rssToJsonApi);
         const data = await res.json();
-        // The new API has a different response structure
-        if (data.items) {
+
+        if (data.status === 'ok' && data.items) {
           // Take the latest 4 articles
           setArticles(data.items.slice(0, 4) || []);
         }
       } catch (error) {
+        setError(error);
         console.error("Failed to fetch Medium articles:", error);
       } finally {
         setLoading(false);
