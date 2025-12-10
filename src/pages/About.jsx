@@ -5,21 +5,21 @@ import { GraduationCap, Calendar } from "lucide-react";
 const educationData = [
   {
     degree: "M.Sc. in Cyber Forensic & Cyber Security",
-    institution: "University of Madras",
-    logo: "/logos/unom.png", // IMPORTANT: Add your logo to the `public/logos` folder
-    link: "https://www.unom.ac.in/",
-    period: "2023 - Present",
+    institution: "Amity University Noida",
+    logo: "/Malworld/logos/amity_noida_logo.png", // IMPORTANT: Add your logo to the `public/logos` folder
+    link: "https://noida.amity.edu",
+    period: "2024 - Present",
     description: "Focusing on advanced digital forensics, network security, and cryptographic principles.",
-    cgpa: "N/A"
+    cgpa: "8.41"
   },
   {
     degree: "B.Sc. in Computer Science",
-    institution: "Another University",
-    logo: "/logos/placeholder-logo.png", // IMPORTANT: Add your logo to the `public/logos` folder
-    link: "#",
+    institution: "SUPREME KNOWLEDGE FOUNDATION",
+    logo: "/Malworld/logos/skf-newlogo-new1.jpg", // IMPORTANT: Add your logo to the `public/logos` folder
+    link: "https://www.skf.edu.in/",
     period: "2020 - 2023",
     description: "Built a strong foundation in algorithms, data structures, and software development.",
-    cgpa: "8.5/10"
+    cgpa: "8.86"
   },
 ];
 
@@ -27,14 +27,14 @@ const eventsData = [
   {
     title: "Workshop on Ethical Hacking",
     organization: "Local Tech College",
-    image: "/events/workshop.jpg", // IMPORTANT: Add your event photo to the `public/events` folder
+    image: "/Malworld/events/workshop.jpg", // IMPORTANT: Add your event photo to the `public/events` folder
     period: "Oct 2023",
     description: "Led a hands-on workshop for students on the fundamentals of penetration testing and vulnerability assessment."
   },
   {
     title: "Speaker at CyberSec Conference 2024",
     organization: "Online Conference",
-    image: "/events/conference.jpg", // IMPORTANT: Add your event photo to the `public/events` folder
+    image: "/Malworld/events/conference.jpg", // IMPORTANT: Add your event photo to the `public/events` folder
     period: "Jan 2024",
     description: "Presented on the topic of 'The Intersection of AI and Autonomous Penetration Testing'."
   },
@@ -69,7 +69,7 @@ const About = ({ hash }) => {
             transition={{ duration: 0.8 }}
           >
             <img 
-              src="/Arya.jpg"
+              src="/Malworld/Arya.jpg"
               alt="Arya Koner" 
               className="rounded-lg w-full border-2 border-gray-700" 
             />
@@ -124,7 +124,12 @@ const About = ({ hash }) => {
                 <div className="space-y-4">
                   {educationData.map((item, index) => (
                     <div key={index} className="flex gap-5 bg-[#161b22]/70 border border-gray-700 p-5 rounded-lg">
-                      <img src={item.logo} alt={`${item.institution} logo`} className="w-16 h-16 object-contain rounded-md bg-white p-1 self-start" />
+                      <img 
+                        src={item.logo} 
+                        alt={`${item.institution} logo`} 
+                        className="w-16 h-16 object-contain rounded-md bg-white p-1 self-start" 
+                        onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/64?text=Logo"; }}
+                      />
                       <div className="flex-1">
                         <div className="flex justify-between items-start">
                           <div>
@@ -144,7 +149,12 @@ const About = ({ hash }) => {
                 <div className="space-y-4">
                   {eventsData.map((item, index) => (
                     <div key={index} className="bg-[#161b22]/70 border border-gray-700 rounded-lg overflow-hidden">
-                      <img src={item.image} alt={item.title} className="w-full h-48 object-cover" />
+                      <img 
+                        src={item.image} 
+                        alt={item.title} 
+                        className="w-full h-48 object-cover" 
+                        onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/400x200?text=Event"; }}
+                      />
                       <div className="p-5">
                         <div className="flex justify-between items-baseline">
                           <h3 className="font-bold text-lg text-white">{item.title}</h3>
