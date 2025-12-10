@@ -42,7 +42,7 @@ const ProfileSidebar = () => (
       <h1 className="text-2xl font-bold text-gray-100">Arya Koner</h1>
       <p className="text-lg text-gray-400 mb-4">Mr-Malman</p>
       <p className="text-gray-300 mb-4">
-        Malware Analyst & Developer, dissecting hostile code to understand threats and build resilient frameworks. I'm also a Cybersecurity content creator on YouTube and social media, making videos and conducting workshops to help people stay secure online.
+        I am the firewall to my own success. No malware, no hacker, no obstacle can break me. I stay updated, I stay strong, I stay secure!
       </p>
       <a
         href="https://drive.google.com/file/d/1FhlBfGgGETmnM9_YQrBBwVJDiHBifHvS/view?usp=sharing" // IMPORTANT: Replace with your Google Drive share link.

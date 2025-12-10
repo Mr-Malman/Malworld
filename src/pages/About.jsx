@@ -25,18 +25,39 @@ const educationData = [
 
 const eventsData = [
   {
-    title: "Workshop on Ethical Hacking",
-    organization: "Local Tech College",
-    image: "/Malworld/events/workshop.jpg", // IMPORTANT: Add your event photo to the `public/events` folder
-    period: "Oct 2023",
-    description: "Led a hands-on workshop for students on the fundamentals of penetration testing and vulnerability assessment."
+    title: "Digital India Talk Show",
+    organization: "Amity University",
+    image: "/Malworld/events/S6.png", // IMPORTANT: Add your event photo to the `public/events` folder
+    period: "Jan 21, 2025",
+    description: "Honored to participate and win a quiz at the Digital India Talk Show, Amity University! A great experience engaging with experts on cybersecurity and digital innovation."
   },
   {
-    title: "Speaker at CyberSec Conference 2024",
-    organization: "Online Conference",
-    image: "/Malworld/events/conference.jpg", // IMPORTANT: Add your event photo to the `public/events` folder
-    period: "Jan 2024",
-    description: "Presented on the topic of 'The Intersection of AI and Autonomous Penetration Testing'."
+    title: "Meta Verse Master Competition",
+    organization: "Amity University",
+    image: "/Malworld/events/event1.png", // IMPORTANT: Add your event photo to the `public/events` folder
+    period: "Oct 2024",
+    description: "it was an incredible experience showcasing my OTPS protocol, a solution designed to revolutionize OTP security in this rapidly evolving digital world."
+  },
+  {
+    title: "Cyber Warfare Masterclass",
+    organization: "Amity University",
+    image: "/Malworld/events/event2.jpeg", // IMPORTANT: Add your event photo to the `public/events` folder
+    period: "Sept 2024",
+    description: "hrilled to dive into the complex world of cyber warfare with a detailed case study on Stuxnet, analyzing its sophisticated attack vectors and vulnerabilities exploited in critical infrastructure."
+  },
+  {
+    title: "Cyber Suraksha Kavach Abhiyan",
+    organization: "Amity University",
+    image: "/Malworld/events/event4.JPEG", // IMPORTANT: Add your event photo to the `public/events` folder
+    period: "Sept 2024",
+    description: "I was talking about some new and modern crime like Digital Arrest Scams, GST & TAX Scams, APT36"
+  },
+  {
+    title: "Mr Fresher",
+    organization: "Amity University",
+    image: "/Malworld/events/event3.jpeg", // IMPORTANT: Add your event photo to the `public/events` folder
+    period: "Sept 2024",
+    description: "From reconnaissance to executing the perfect payload, I was prepared at every stage."
   },
 ];
 
@@ -146,21 +167,21 @@ const About = ({ hash }) => {
                 </div>
               )}
               {activeTab === 'events' && (
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {eventsData.map((item, index) => (
-                    <div key={index} className="bg-[#161b22]/70 border border-gray-700 rounded-lg overflow-hidden">
+                    <div key={index} className="bg-[#161b22]/70 border border-gray-700 rounded-lg overflow-hidden flex flex-col">
                       <img 
                         src={item.image} 
                         alt={item.title} 
-                        className="w-full h-48 object-cover" 
-                        onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/400x200?text=Event"; }}
+                        className="w-full aspect-square object-cover" 
+                        onError={(e) => { e.target.onerror = null; e.target.src = "https://via.placeholder.com/400?text=Event"; }}
                       />
-                      <div className="p-5">
-                        <div className="flex justify-between items-baseline">
+                      <div className="p-5 flex-1 flex flex-col">
+                        <div className="flex justify-between items-baseline mb-2">
                           <h3 className="font-bold text-lg text-white">{item.title}</h3>
-                          <span className="text-xs text-gray-500">{item.period}</span>
+                          <span className="text-xs text-gray-500 whitespace-nowrap ml-2">{item.period}</span>
                         </div>
-                        <p className="text-blue-400 text-sm mb-2">{item.organization}</p>
+                        <p className="text-blue-400 text-sm mb-3">{item.organization}</p>
                         <p className="text-gray-400 text-sm">{item.description}</p>
                       </div>
                     </div>
