@@ -56,8 +56,22 @@ const eventsData = [
     title: "Mr Fresher",
     organization: "Amity University",
     image: "/Malworld/events/event3.jpeg", // IMPORTANT: Add your event photo to the `public/events` folder
-    period: "Sept 2024",
+    period: "Oct 2024",
     description: "From reconnaissance to executing the perfect payload, I was prepared at every stage."
+  },
+  {
+    title: "Cyber Security Awareness Program",
+    organization: "Calcutta Public School",
+    image: "/Malworld/events/event5.jpeg", // IMPORTANT: Add your event photo to the `public/events` folder
+    period: "April 2024",
+    description: "Elaborated the Student about how to used there smart devices and how to stay safe in Cyber World"
+  },
+  {
+    title: "CyberEscudo",
+    organization: "Amity University",
+    image: "/Malworld/events/event6.png", // IMPORTANT: Add your event photo to the `public/events` folder
+    period: "Oct 2024",
+    description: "A cybersecurity workshop designed for the next generation of digital warriors!"
   },
 ];
 
