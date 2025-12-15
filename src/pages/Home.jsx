@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Rss, Youtube, Download, Globe, Linkedin, Twitter, Github } from "lucide-react";
+import comptiaLogo from '../assets/comptia_logo.png';
+import image2 from '../assets/image-2.png';
 
 const AnimatedBackground = () => (
   <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
@@ -62,7 +64,7 @@ const ProfileSidebar = () => (
             rel="noopener noreferrer"
             className="hover:scale-105 transition-transform duration-300"
           >
-            <img src="/comptia_logo.png" alt="CompTIA Certification Badge" className="h-32 w-auto" />
+            <img src={comptiaLogo} alt="CompTIA Security+ Badge" className="h-32 w-auto" />
           </a>
           <a
             href="https://www.credly.com/badges/0dfc0950-4448-4d60-a9b6-014846e57e1f" // IMPORTANT: Replace with your second badge URL
@@ -70,7 +72,7 @@ const ProfileSidebar = () => (
             rel="noopener noreferrer"
             className="hover:scale-105 transition-transform duration-300"
           >
-            <img src="/image-2.png" alt="New Certification Badge" className="h-32 w-auto" />
+            <img src={image2} alt="CompTIA Network+ Badge" className="h-32 w-auto" />
           </a>
         </div>
       </div>
