@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Rss, Youtube, Download, Globe, Linkedin, Twitter, Github } from "lucide-react";
+import comptiaLogo from "/comptia_logo.png";
+import badge2Logo from "/image-2.png"; // IMPORTANT: Replace with your second badge image filename
 
 const AnimatedBackground = () => (
   <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
@@ -53,6 +55,27 @@ const ProfileSidebar = () => (
         <Download size={16} />
         <span>View CV</span>
       </a>
+      <div className="mt-6">
+        <h3 className="text-gray-200 font-bold mb-2 text-center">Achievements</h3>
+        <div className="flex justify-center gap-4 flex-wrap">
+          <a
+            href="https://www.credly.com/badges/97e48515-d12d-411a-a2ec-2d3b69db97fe/public_url"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:scale-105 transition-transform duration-300"
+          >
+            <img src={comptiaLogo} alt="CompTIA Certification Badge" className="h-32 w-auto" />
+          </a>
+          <a
+            href="https://www.credly.com/badges/0dfc0950-4448-4d60-a9b6-014846e57e1f" // IMPORTANT: Replace with your second badge URL
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:scale-105 transition-transform duration-300"
+          >
+            <img src={badge2Logo} alt="New Certification Badge" className="h-32 w-auto" />
+          </a>
+        </div>
+      </div>
       <div className="mt-4 pt-4 border-t border-gray-700 text-sm">
         <div className="flex items-center gap-2 text-gray-400">
           <p>📍 Noida, India</p>
