@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence, useIsPresent } from "framer-motion";
 import { Briefcase, FolderGit2, Award, Eye, Github } from "lucide-react";
+import comptiaLogo from "../assets/comptia.png";
 
 const workExperience = [
   {
@@ -92,46 +93,12 @@ const workExperience = [
 const certifications = [
   {
     id: 1,
-    name: "CEH v13 AI",
-    issuer: "EC-Council (Pursuing)",
-    link: "#",
-    image: "/certs/ceh.png" // Add image to public/certs
-  },
-  {
-    id: 2,
-    name: "CEH Master",
-    issuer: "EC-Council (Pursuing)",
-    link: "#",
-    image: "/certs/ceh-master.png" // Add image to public/certs
-  },
-  {
-    id: 3,
     name: "CompTIA Security+",
-    issuer: "CompTIA (Pursuing)",
-    link: "#",
-    image: "/certs/comptia.png" // Add image to public/certs
+    issuer: "CompTIA",
+    link: "https://www.credly.com/badges/97e48515-d12d-411a-a2ec-2d3b69db97fe/public_url",
+    image: comptiaLogo
   },
-  {
-    id: 4,
-    name: "Cisco Cyber Threat Management",
-    issuer: "Cisco",
-    link: "#",
-    image: "/certs/cisco.png" // Add image to public/certs
-  },
-  {
-    id: 5,
-    name: "Google Cybersecurity Professional Certificate",
-    issuer: "Google",
-    link: "#",
-    image: "/certs/google.png" // Add image to public/certs
-  },
-  {
-    id: 6,
-    name: "Offensive Security Certified Professional (OSCP)",
-    issuer: "Offensive Security",
-    link: "#",
-    image: "/certs/oscp.png" // Add image to public/certs
-  }
+  
 ];
 
 const projectsData = [
@@ -279,12 +246,14 @@ const Projects = ({ hash }) => {
 
               {/* Certifications Content */}
               {activeTab === 'certifications' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {certifications.map((cert) => (
-                    <a href={cert.link} key={cert.id} target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 bg-[#161b22]/70 border border-gray-700 p-4 rounded-lg hover:border-blue-400/50 transition-colors">
-                      <img src={cert.image} alt={cert.name} className="w-12 h-12 object-contain bg-white rounded-md p-1" />
-                      <div>
-                        <p className="font-semibold text-white">{cert.name}</p>
+                    <a href={cert.link} key={cert.id} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-4 bg-[#161b22]/70 border border-gray-700 p-6 rounded-lg hover:border-blue-400/50 transition-colors aspect-square">
+                      <div className="w-full flex-1 flex items-center justify-center bg-white rounded-md p-2 overflow-hidden">
+                        <img src={cert.image} alt={cert.name} className="w-full h-full object-contain" />
+                      </div>
+                      <div className="text-center">
+                        <p className="font-semibold text-white text-lg">{cert.name}</p>
                         <p className="text-sm text-gray-400">{cert.issuer}</p>
                       </div>
                     </a>
