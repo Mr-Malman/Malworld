@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Rss, Youtube, Download, Globe, Linkedin, Twitter, Github } from "lucide-react";
+import { Rss, Youtube, Download, Globe, Linkedin, Twitter, Github, Bug } from "lucide-react";
 import comptiaLogo from '../assets/comptia_logo.png';
 import image2 from '../assets/image-2.png';
 
@@ -221,27 +221,61 @@ const Home = ({ handleNavigation }) => {
               </motion.div>
             </div>
 
-            {/* Medium Button Section */}
-            <div className="mt-12">
-              <motion.h2
-                className="text-2xl font-bold text-gray-200 mb-4 flex items-center gap-2"
-                initial={{ opacity: 0 }}
+            {/* Articles & Malware Submissions Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+              {/* Medium Section */}
+              <motion.div
+                className="bg-[#161b22]/80 backdrop-blur-sm border border-gray-700 p-6 rounded-xl hover:border-orange-500/50 transition-all duration-300 group relative overflow-hidden flex flex-col items-start"
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1 }}
-                transition={{ duration: 0.8 }}
+                transition={{ duration: 0.5 }}
               >
-                <Rss size={20} /> Latest Articles
-              </motion.h2>
-              <div className="text-center bg-[#161b22]/70 backdrop-blur-sm border border-gray-700 p-6 rounded-lg">
-                <p className="text-gray-400 mb-4">I share my latest research and articles on Medium.</p>
+                <div className="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500 rotate-12">
+                  <Rss size={120} />
+                </div>
+                
+                <h2 className="text-2xl font-bold text-gray-200 mb-3 flex items-center gap-2 z-10">
+                  <Rss className="text-orange-500" size={24} /> Latest Articles
+                </h2>
+                <p className="text-gray-400 mb-6 z-10 flex-grow">
+                  Explore my latest research, deep dives, and security tutorials published on Medium.
+                </p>
                 <a
                   href="https://mr-malman.medium.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white font-bold py-2 px-4 rounded-md transition-all"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-500 hover:to-pink-500 text-white font-bold rounded-lg shadow-lg shadow-orange-900/20 transform hover:-translate-y-0.5 transition-all duration-200 z-10"
                 >
-                  View Articles on Medium <ChevronRightIcon className="w-4 h-4" />
+                  Read on Medium <ChevronRightIcon className="w-4 h-4" />
                 </a>
-              </div>
+              </motion.div>
+
+              {/* MalwareBazaar Section */}
+              <motion.div
+                className="bg-[#161b22]/80 backdrop-blur-sm border border-gray-700 p-6 rounded-xl hover:border-red-500/50 transition-all duration-300 group relative overflow-hidden flex flex-col items-start"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <div className="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity duration-500 rotate-12">
+                  <Bug size={120} />
+                </div>
+
+                <h2 className="text-2xl font-bold text-gray-200 mb-3 flex items-center gap-2 z-10">
+                  <Bug className="text-red-500" size={24} /> Malware Submissions
+                </h2>
+                <p className="text-gray-400 mb-6 z-10 flex-grow">
+                  Access my contributed malware samples and threat intelligence reports on MalwareBazaar.
+                </p>
+                <a
+                  href="https://bazaar.abuse.ch/user/31425/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-500 hover:to-purple-500 text-white font-bold rounded-lg shadow-lg shadow-red-900/20 transform hover:-translate-y-0.5 transition-all duration-200 z-10"
+                >
+                  View My Submissions <ChevronRightIcon className="w-4 h-4" />
+                </a>
+              </motion.div>
             </div>
 
             {/* YouTube Videos Section */}
