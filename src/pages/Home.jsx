@@ -225,7 +225,7 @@ const Home = ({ handleNavigation }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
               {/* Medium Section */}
               <motion.div
-                className="bg-[#161b22]/80 backdrop-blur-sm border border-gray-700 p-6 rounded-xl hover:border-orange-500/50 transition-all duration-300 group relative overflow-hidden flex flex-col items-start"
+                className="bg-[#161b22]/80 backdrop-blur-sm border border-gray-700 p-6 rounded-xl hover:border-blue-500/50 transition-all duration-300 group relative overflow-hidden flex flex-col items-start"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
@@ -244,7 +244,7 @@ const Home = ({ handleNavigation }) => {
                   href="https://mr-malman.medium.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transform hover:-translate-y-0.5 transition-all duration-200 z-10"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transform hover:-translate-y-0.5 transition-all duration-200 z-10"
                 >
                   Read on Medium <ChevronRightIcon className="w-4 h-4" />
                 </a>
@@ -252,7 +252,7 @@ const Home = ({ handleNavigation }) => {
 
               {/* MalwareBazaar Section */}
               <motion.div
-                className="bg-[#161b22]/80 backdrop-blur-sm border border-gray-700 p-6 rounded-xl hover:border-red-500/50 transition-all duration-300 group relative overflow-hidden flex flex-col items-start"
+                className="bg-[#161b22]/80 backdrop-blur-sm border border-gray-700 p-6 rounded-xl hover:border-blue-500/50 transition-all duration-300 group relative overflow-hidden flex flex-col items-start"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
@@ -271,7 +271,7 @@ const Home = ({ handleNavigation }) => {
                   href="https://bazaar.abuse.ch/user/31425/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transform hover:-translate-y-0.5 transition-all duration-200 z-10"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-blue-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transform hover:-translate-y-0.5 transition-all duration-200 z-10"
                 >
                   View My Submissions <ChevronRightIcon className="w-4 h-4" />
                 </a>
