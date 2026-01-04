@@ -244,7 +244,7 @@ const Home = ({ handleNavigation }) => {
                   href="https://mr-malman.medium.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-orange-600 to-pink-600 hover:from-orange-500 hover:to-pink-500 text-white font-bold rounded-lg shadow-lg shadow-orange-900/20 transform hover:-translate-y-0.5 transition-all duration-200 z-10"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transform hover:-translate-y-0.5 transition-all duration-200 z-10"
                 >
                   Read on Medium <ChevronRightIcon className="w-4 h-4" />
                 </a>
@@ -271,7 +271,7 @@ const Home = ({ handleNavigation }) => {
                   href="https://bazaar.abuse.ch/user/31425/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-red-600 to-purple-600 hover:from-red-500 hover:to-purple-500 text-white font-bold rounded-lg shadow-lg shadow-red-900/20 transform hover:-translate-y-0.5 transition-all duration-200 z-10"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-bold rounded-lg shadow-lg shadow-blue-900/20 transform hover:-translate-y-0.5 transition-all duration-200 z-10"
                 >
                   View My Submissions <ChevronRightIcon className="w-4 h-4" />
                 </a>
