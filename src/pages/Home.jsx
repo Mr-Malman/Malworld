@@ -74,6 +74,15 @@ const ProfileSidebar = () => (
           >
             <img src={image2} alt="CompTIA Network+ Badge" className="h-32 w-auto" />
           </a>
+          <a
+            href="#" // IMPORTANT: Replace with your new badge URL
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:scale-105 transition-transform duration-300"
+          >
+            {/* IMPORTANT: Replace src with your new badge image variable */}
+            <img src={comptiaLogo} alt="New Badge" className="h-32 w-auto" />
+          </a>
         </div>
       </div>
       <div className="mt-4 pt-4 border-t border-gray-700 text-sm">
