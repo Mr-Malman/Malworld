@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Rss, Youtube, Download, Globe, Linkedin, Twitter, Github, Bug } from "lucide-react";
 import comptiaLogo from '../assets/comptia_logo.png';
 import image2 from '../assets/image-2.png';
-import CEHLogo from '../assets/CEH.JPEG';
+import CEHLogo from '../assets/CEH.png';
 
 const AnimatedBackground = () => (
   <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
