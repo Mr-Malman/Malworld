@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Rss, Youtube, Download, Globe, Linkedin, Twitter, Github, Bug } from "lucide-react";
 import comptiaLogo from '../assets/comptia_logo.png';
 import image2 from '../assets/image-2.png';
+import CEHLogo from '../assets/CEH.JPEG';
 
 const AnimatedBackground = () => (
   <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
@@ -81,7 +82,7 @@ const ProfileSidebar = () => (
             className="hover:scale-105 transition-transform duration-300"
           >
             {/* IMPORTANT: Replace src with your new badge image variable */}
-            <img src={comptiaLogo} alt="New Badge" className="h-32 w-auto" />
+            <img src={CEHLogo} alt="CEH V13 AI" className="h-32 w-auto" />
           </a>
         </div>
       </div>
