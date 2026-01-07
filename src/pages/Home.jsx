@@ -47,7 +47,7 @@ const ProfileSidebar = () => (
         I am the firewall to my own success. No malware, no hacker, no obstacle can break me. I stay updated, I stay strong, I stay secure!
       </p>
       <a
-        href="https://drive.google.com/drive/folders/1-_C0Hp7OA9HD_cMznJbPiG5xT5YNCtCf?usp=sharing" // IMPORTANT: Replace with your Google Drive share link.
+        href="https://drive.google.com/file/d/15ua1Oa3OhSNOHvuUrFk-iBJRCf3iDwid/view?usp=sharing" // IMPORTANT: Replace with your Google Drive share link.
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-center justify-center gap-2 w-full bg-gray-800 border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white font-bold py-2 px-4 rounded-md transition-all"
