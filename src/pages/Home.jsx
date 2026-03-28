@@ -106,6 +106,95 @@ const ProfileSidebar = () => (
   </div>
 );
 
+const MediumArticles = () => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/@mr-malman`);
+        const data = await res.json();
+        if (data.status === 'ok' && data.items) {
+          const fetchedArticles = data.items.slice(0, 2).map((item, index) => {
+            let thumbnail = item.thumbnail;
+            if (!thumbnail || thumbnail === "") {
+              const content = item.content || item.description || "";
+              const imgTags = content.match(/<img[^>]+src=["']([^"']+)["'][^>]*>/gi);
+              if (imgTags) {
+                const validImg = imgTags.find(tag => !tag.includes('stat?event') && !tag.includes('width="1"'));
+                if (validImg) {
+                  const srcMatch = validImg.match(/src=["']([^"']+)["']/i);
+                  thumbnail = srcMatch ? srcMatch[1] : null;
+                }
+              }
+            }
+            return {
+              id: index,
+              title: item.title,
+              link: item.link,
+              thumbnail: thumbnail,
+              pubDate: new Date(item.pubDate).toLocaleDateString(),
+            };
+          });
+          setArticles(fetchedArticles);
+        }
+      } catch (error) {
+        console.error("Failed to fetch Medium articles:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
+
+  if (loading) return <p className="text-gray-400 mt-12">Loading articles...</p>;
+  if (!articles.length) return null;
+
+  return (
+    <div className="mt-12">
+      <motion.h2
+        className="text-2xl font-bold text-gray-200 mb-4 flex items-center gap-2"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        <Rss size={20} className="text-orange-500" /> Latest Articles
+      </motion.h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {articles.map((article) => (
+          <a
+            key={article.id}
+            href={article.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group bg-[#161b22]/70 border border-gray-700 rounded-lg overflow-hidden hover:border-orange-500/50 transition-all duration-300 flex flex-col"
+          >
+            {article.thumbnail ? (
+              <div className="w-full h-48 overflow-hidden bg-gray-800">
+                <img
+                  src={article.thumbnail}
+                  alt={article.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            ) : (
+              <div className="w-full h-48 overflow-hidden bg-gray-800 flex items-center justify-center">
+                <Rss size={48} className="text-gray-600" />
+              </div>
+            )}
+            <div className="p-4 flex-grow flex flex-col justify-between">
+              <h3 className="font-bold text-white mb-2 line-clamp-2">{article.title}</h3>
+              <p className="text-sm text-gray-400">{article.pubDate}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const YouTubeVideos = () => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -118,10 +207,15 @@ const YouTubeVideos = () => {
         const data = await res.json();
         if (data.status === 'ok' && data.items) {
           // Extract video ID from the link and take the latest 2 videos.
-          const fetchedVideos = data.items.slice(0, 2).map(item => ({
-            id: item.link.substring(item.link.indexOf("=") + 1),
-            title: item.title,
-          }));
+          const fetchedVideos = data.items.slice(0, 2).map((item) => {
+            const match = item.link.match(/(?:v=|shorts\/|youtu\.be\/|\/v\/|^)([a-zA-Z0-9_-]{11})/);
+            const id = match ? match[1] : null;
+            return {
+              id: id,
+              title: item.title,
+              link: item.link
+            };
+          }).filter(v => v.id);
           setVideos(fetchedVideos);
         }
       } catch (error) {
@@ -149,19 +243,27 @@ const YouTubeVideos = () => {
       </motion.h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {videos.map((video) => (
-          <div key={video.id} className="bg-[#161b22]/70 border border-gray-700 p-4 rounded-lg">
-            <div className="aspect-w-16 aspect-h-9 mb-3">
-              <iframe
-                src={`https://www.youtube.com/embed/${video.id}`}
-                title={video.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full rounded"
-              ></iframe>
+          <a 
+            key={video.id} 
+            href={`https://www.youtube.com/watch?v=${video.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group bg-[#161b22]/70 border border-gray-700 p-4 rounded-lg block hover:border-red-500/50 transition-all duration-300"
+          >
+            <div className="aspect-video mb-3 overflow-hidden rounded relative bg-gray-800">
+              <img
+                src={`https://img.youtube.com/vi/${video.id}/hqdefault.jpg`}
+                alt={video.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="bg-red-600 rounded-full p-3 shadow-lg shrink-0 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <Youtube className="text-white" size={24} />
+                </div>
+              </div>
             </div>
             <h3 className="font-bold text-white truncate">{video.title}</h3>
-          </div>
+          </a>
         ))}
       </div>
     </div>
@@ -287,6 +389,9 @@ const Home = ({ handleNavigation }) => {
                 </a>
               </motion.div>
             </div>
+
+            {/* Medium Articles Preview */}
+            <MediumArticles />
 
             {/* YouTube Videos Section */}
             <YouTubeVideos />
