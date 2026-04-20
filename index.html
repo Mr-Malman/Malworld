@@ -460,378 +460,372 @@
   }
 
   function cmdAbout() {
-    printBlank();
-    println('c-yellow', '[*] Starting Nmap 7.94SVN ( https://nmap.org )');
-    println('c-dim',    '[*] Scanning target: MAL (10.13.37.1)');
-    println('c-dim',    '[*] Host is up (0.0014s latency).');
-    printBlank();
-    println('c-cyan bold', 'PORT      STATE  SERVICE    VERSION');
-    println('c-dim',       '────────────────────────────────────────────────────────────────');
-
-    const ports = [
-      { port:'22/tcp  ', svc:'identity ', ver:'Mal | Mr. Malman' },
-      { port:'80/tcp  ', svc:'role     ', ver:'Cybersecurity Researcher & Developer' },
-      { port:'443/tcp ', svc:'focus    ', ver:'Threat Detection · AI Security · Malware Analysis' },
-      { port:'1337/tcp', svc:'specialty', ver:'Penetration Testing · VAPT · Digital Forensics' },
-      { port:'8080/tcp', svc:'status   ', ver:'Available for collaboration & research' },
-      { port:'9000/tcp', svc:'location ', ver:'Noida, India (Remote-ready)' },
+    const lines = [
+      { fn: () => printBlank() },
+      { fn: () => println('c-yellow', '[*] Starting Nmap 7.94SVN ( https://nmap.org )') },
+      { fn: () => println('c-dim',    '[*] Nmap scan report for mal-operator (10.13.37.1)') },
+      { fn: () => println('c-dim',    '[*] Host is up (0.0014s latency). Not shown: 65522 closed ports.') },
+      { fn: () => printBlank() },
+      { fn: () => println('c-cyan bold', 'PORT      STATE  SERVICE     VERSION') },
+      { fn: () => println('c-dim',       '──────────────────────────────────────────────────────────────────────') },
+      { fn: () => printRaw('<span class="c-green">22/tcp  </span>  <span class="c-green">open</span>   <span class="c-cyan">identity  </span>  Arya Koner | Mal | Mr. Malman') },
+      { fn: () => printRaw('<span class="c-green">25/tcp  </span>  <span class="c-green">open</span>   <span class="c-cyan">email     </span>  arya.koner07@gmail.com') },
+      { fn: () => printRaw('<span class="c-green">80/tcp  </span>  <span class="c-green">open</span>   <span class="c-cyan">role      </span>  Cybersecurity Researcher &amp; Developer | Age: 23') },
+      { fn: () => printRaw('<span class="c-green">443/tcp </span>  <span class="c-green">open</span>   <span class="c-cyan">focus     </span>  Malware Analysis · Red Teaming · Digital Forensics · AI Security') },
+      { fn: () => printRaw('<span class="c-green">1337/tcp</span>  <span class="c-green">open</span>   <span class="c-cyan">specialty </span>  VAPT · Reverse Engineering · Incident Response') },
+      { fn: () => printRaw('<span class="c-green">3306/tcp</span>  <span class="c-green">open</span>   <span class="c-cyan">languages </span>  English · Bengali · Hindi') },
+      { fn: () => printRaw('<span class="c-green">8080/tcp</span>  <span class="c-green">open</span>   <span class="c-cyan">status    </span>  <span class="c-yellow">Available for collaboration &amp; research work</span>') },
+      { fn: () => printRaw('<span class="c-green">9000/tcp</span>  <span class="c-green">open</span>   <span class="c-cyan">location  </span>  Kolkata, West Bengal / Noida, UP (Remote-ready)') },
+      { fn: () => printBlank() },
+      { fn: () => println('c-dim', '──────────────────────────────────────────────────────────────────────') },
+      { fn: () => println('c-yellow', '[INFO] Host is UP. Operator profile fully loaded.') },
+      { fn: () => println('c-yellow', '[INFO] OS fingerprint: OffSec/Research — Linux kernel + Windows internals expertise') },
+      { fn: () => printBlank() },
+      { fn: () => println('c-green bold', '[BIO] Cybersecurity Specialist & Digital Forensics Investigator bridging') },
+      { fn: () => println('',             '      offensive security and advanced threat detection. M.Sc. in Cyber') },
+      { fn: () => println('',             '      Forensic & Cyber Security at Amity University Noida (CGPA: 8.01).') },
+      { fn: () => printBlank() },
+      { fn: () => println('c-green bold', '[BIO] Hobbies: Malware Research · CTF Competitions · Cybersecurity Blogging') },
+      { fn: () => println('',             '      (Medium) · Threat Intelligence · Playing Guitar · Cooking') },
+      { fn: () => printBlank() },
+      { fn: () => println('c-yellow', '[INFO] "Building defenses by understanding the offense."') },
+      { fn: () => println('c-dim',    '[INFO] "I am the firewall to my own success. No malware, no obstacle can break me."') },
+      { fn: () => printBlank() },
     ];
-
-    ports.forEach(p => {
-      printRaw(
-        `<span class="c-green">${p.port}</span>  ` +
-        `<span class="c-green">open</span>   ` +
-        `<span class="c-cyan">${p.svc}</span>  ` +
-        `<span>${p.ver}</span>`
-      );
-    });
-
-    printBlank();
-    println('c-dim', '────────────────────────────────────────────────────────────────');
-    println('c-yellow', '[INFO] Host is UP. Operator profile fully loaded.');
-    println('c-yellow', '[INFO] OS detected: CyberSec/Research [Linux kernel + offensive mindset]');
-    printBlank();
-    println('c-green',  '[BIO] I am a Cybersecurity Specialist and Digital Forensics Investigator');
-    println('',          '      bridging the gap between offensive security and advanced threat');
-    println('',          '      detection. Currently pursuing M.Sc. in Cyber Forensic & Cyber');
-    println('',          '      Security, combining academic rigor with practical field experience.');
-    printBlank();
-    println('c-green',  '[BIO] Background ranges from Junior Cyber Crime Investigator (Autopsy,');
-    println('',          '      EnCase forensics) to high-level VAPT for enterprise networks');
-    println('',          '      (Burp Suite, Metasploit). Passionate about AI × Security.');
-    printBlank();
-    println('c-green',  '[BIO] Currently developing BlackIce AI — autonomous penetration testing');
-    println('',          '      framework. Whether reverse engineering malware, automating defenses');
-    println('',          '      with Python and Nim, or training the next generation of defenders.');
-    printBlank();
-    println('c-yellow', '[INFO] "Building defenses by understanding the offense."');
-    println('c-dim',    '[INFO] "I am the firewall to my own success."');
-    printBlank();
+    let i = 0;
+    const t = setInterval(() => {
+      if (i >= lines.length) { clearInterval(t); return; }
+      lines[i++].fn();
+    }, 40);
   }
 
   function cmdSkills() {
     printBlank();
-    println('c-yellow', '[*] Connecting to C2 server at 10.13.37.1:4444...');
-    println('c-green',  '[+] Session established. Loading capability modules...');
+    println('c-yellow', '[*] Connecting to C2 implant at 10.13.37.1:4444...');
+    println('c-green',  '[+] Beacon received. Staging payload modules...');
+    println('c-dim',    '[*] Core skills sourced from operator profile...');
     printBlank();
 
     const modules = [
-      { name:'python.exe         ', pct: 88, bars: 18 },
-      { name:'threat_detection   ', pct: 85, bars: 17 },
-      { name:'network_security   ', pct: 88, bars: 18 },
-      { name:'machine_learning   ', pct: 82, bars: 16 },
-      { name:'bash_linux         ', pct: 87, bars: 17 },
-      { name:'digital_forensics  ', pct: 90, bars: 18 },
-      { name:'penetration_testing', pct: 92, bars: 19 },
-      { name:'reverse_engineering', pct: 70, bars: 14 },
-      { name:'web_exploitation   ', pct: 75, bars: 15 },
-      { name:'incident_response  ', pct: 80, bars: 16 },
-      { name:'malware_analysis   ', pct: 83, bars: 17 },
+      { name:'vapt               ', pct: 92, final: 18 },
+      { name:'malware_analysis   ', pct: 90, final: 18 },
+      { name:'malware_development', pct: 85, final: 17 },
+      { name:'digital_forensics  ', pct: 90, final: 18 },
+      { name:'red_teaming        ', pct: 88, final: 18 },
+      { name:'reverse_engineering', pct: 85, final: 17 },
+      { name:'incident_response  ', pct: 87, final: 17 },
+      { name:'python_scripting   ', pct: 88, final: 18 },
+      { name:'c_cpp              ', pct: 75, final: 15 },
+      { name:'bash_linux         ', pct: 87, final: 17 },
+      { name:'nim_lang           ', pct: 78, final: 16 },
+      { name:'network_security   ', pct: 88, final: 18 },
+      { name:'threat_intelligence', pct: 85, final: 17 },
     ];
 
     const TOTAL = 20;
-    modules.forEach(m => {
-      const filled = '█'.repeat(m.bars);
-      const empty  = '░'.repeat(TOTAL - m.bars);
-      printRaw(
-        `<span class="c-yellow">[MODULE]</span> ` +
-        `<span class="c-cyan">${m.name}</span> ` +
-        `<span class="c-green">${filled}</span>` +
-        `<span class="c-dim">${empty}</span>` +
-        `  <span class="c-yellow">${m.pct}%</span>` +
-        `  <span class="c-green bold">ACTIVE</span>`
-      );
-    });
+    const spans = [];
 
-    printBlank();
-    println('c-green bold', '[*] All modules armed. Payload builder ready.');
-    println('c-yellow',     '[*] C2 connection persistent — keep-alive: 60s');
-    printBlank();
+    // create placeholder elements first
+    modules.forEach((m, idx) => {
+      const el = document.createElement('span');
+      el.className = 'line';
+      output.appendChild(el);
+      spans.push({ el, m, cur: 0 });
+    });
+    output.scrollTop = output.scrollHeight;
+
+    // animate all bars in parallel
+    const timer = setInterval(() => {
+      let allDone = true;
+      spans.forEach(s => {
+        if (s.cur < s.m.final) { s.cur++; allDone = false; }
+        const filled = '█'.repeat(s.cur);
+        const empty  = '░'.repeat(TOTAL - s.cur);
+        const done   = s.cur >= s.m.final;
+        s.el.innerHTML =
+          `<span class="c-yellow">[MODULE]</span> ` +
+          `<span class="c-cyan">${s.m.name}</span> ` +
+          `<span class="c-green">${filled}</span>` +
+          `<span class="c-dim">${empty}</span>` +
+          `  <span class="c-yellow">${Math.round((s.cur / TOTAL) * 100)}%</span>` +
+          `  <span class="${done ? 'c-green bold' : 'c-dim'}">${done ? 'ACTIVE' : 'LOADING'}</span>`;
+      });
+      output.scrollTop = output.scrollHeight;
+      if (allDone) {
+        clearInterval(timer);
+        printBlank();
+        println('c-green bold', '[*] All 13 modules armed. Payload builder ready.');
+        println('c-yellow',     '[*] C2 beacon persistent — keep-alive: 120s');
+        println('c-dim',        '[*] Operator clearance level: OPERATOR_ELITE');
+        printBlank();
+      }
+    }, 40);
   }
 
   function cmdProjects() {
     printBlank();
     println('c-yellow', '[*] Querying active operations database...');
-    println('c-yellow', '[*] Enumerating deployed sessions...');
+    println('c-yellow', '[*] Enumerating hijacked sessions — decrypting manifests...');
     printBlank();
 
     const projects = [
       {
-        id: '001', name: 'BLACKICE AI MCP AGENTS v4.0',
-        status: 'DEPLOYED', type: 'AI-Powered Autonomous Penetration Testing Framework',
-        stack: 'Python · LLMs · MCP Protocol · 150+ Security Tools',
-        threat: 'CRITICAL', tlevel: 'Autonomous agents with intelligent decision engine',
-        link: 'github.com/Mr-Malman/BLACKICE'
-      },
-      {
-        id: '002', name: 'BADNET v1',
-        status: 'DEPLOYED', type: 'AI-Powered Cyber Attack Detection & Prediction System',
-        stack: 'Python · Scikit-learn · Pandas · Random Forest · Flask',
-        threat: 'HIGH', tlevel: 'Real-time ML classification: DoS · Probe · R2L · U2R',
-        link: 'github.com/Mr-Malman/BADNET'
-      },
-      {
-        id: '003', name: 'HONEYPOT NETWORK',
-        status: 'ACTIVE', type: 'Multi-Protocol Deception & Threat Intelligence System',
-        stack: 'Python · SSH · FTP · DNS · Real-time IP blacklisting',
-        threat: 'MEDIUM', tlevel: 'Detect, log and analyze unauthorized access attempts',
-        link: 'github.com/Mr-Malman/honeypot'
-      },
-      {
-        id: '004', name: 'NIMHUNTER',
-        status: 'RESEARCH', type: 'Nim-Language Malware Detection & Transpilation Analysis',
-        stack: 'Python · YARA · Machine Learning · Static Analysis',
-        threat: 'HIGH', tlevel: 'Transpilation signatures · polymorphic malware detection',
+        id: '001', name: 'NIM MALWARE DETECTION FRAMEWORK',
+        status: 'RESEARCH/ACTIVE', type: 'Multi-Layered Detection for Nim-Compiled Malicious Binaries',
+        stack: 'Python · YARA · ML · Static Analysis · Compiler Artifact Fingerprinting',
+        org: 'Amity University Noida', year: '2026 – Present',
+        threat: 'CRITICAL', tlevel: 'Identifies persistent fingerprints even after obfuscation',
         link: 'github.com/Mr-Malman/NimHunter'
       },
       {
-        id: '005', name: 'MALWORLD PORTFOLIO',
-        status: 'LIVE', type: 'Cybersecurity Portfolio — CTF Theme',
-        stack: 'React · Vite · Framer Motion · Tailwind · GitHub Pages',
-        threat: 'LOW', tlevel: 'Interactive terminal-themed portfolio site',
-        link: 'mr-malman.github.io/Malworld'
+        id: '002', name: 'BLACKICE AI MCP AGENTS v1',
+        status: 'ACTIVE/DEPLOYED', type: 'Advanced AI-Powered Autonomous Penetration Testing Framework',
+        stack: 'Python · LLMs · MCP Protocol · Autonomous Agents · 150+ Security Tools',
+        org: 'Independent / Research', year: '2025 – Present',
+        threat: 'CRITICAL', tlevel: 'Intelligent Decision Engine — fully autonomous red team ops',
+        link: 'github.com/Mr-Malman/BLACKICE'
+      },
+      {
+        id: '003', name: 'BADNET v1',
+        status: 'DEPLOYED', type: 'AI-Powered Cyberattack Detection & Prediction System',
+        stack: 'Python · Scikit-learn · Pandas · ML Algorithms · CLI Workflows',
+        org: 'Independent / Research', year: '2025',
+        threat: 'HIGH', tlevel: 'Real-time detection: DoS · Probe · R2L · U2R · auto training pipelines',
+        link: 'github.com/Mr-Malman/BADNET'
       },
     ];
 
-    const div = (col) => { println(col, '═══════════════════════════════════════════════════════════'); };
-    const sep = (col) => { println(col, '───────────────────────────────────────────────────────────'); };
+    const DIV  = () => println('c-green',  '═══════════════════════════════════════════════════════════════');
+    const SEP  = () => println('c-dim',    '───────────────────────────────────────────────────────────────');
 
     projects.forEach(p => {
-      const tcol = p.threat === 'CRITICAL' ? 'c-red' : p.threat === 'HIGH' ? 'c-yellow' : p.threat === 'MEDIUM' ? 'c-cyan' : 'c-green';
-      div('c-green');
-      println('c-cyan bold', `SESSION #${p.id} — ${p.name}`);
-      sep('c-dim');
+      const tcol = p.threat === 'CRITICAL' ? 'c-red' : p.threat === 'HIGH' ? 'c-yellow' : 'c-cyan';
+      DIV();
+      println('c-cyan bold', `SESSION #${p.id} — [${p.threat === 'CRITICAL' ? '!CRITICAL! ' : ''}${p.name}]`);
+      SEP();
       printRaw(`<span class="c-dim">STATUS   :</span> <span class="c-green bold">${p.status}</span>`);
       printRaw(`<span class="c-dim">TYPE     :</span> ${p.type}`);
       printRaw(`<span class="c-dim">STACK    :</span> <span class="c-cyan">${p.stack}</span>`);
+      printRaw(`<span class="c-dim">ORG      :</span> ${p.org}  <span class="c-dim">|  YEAR: ${p.year}</span>`);
       printRaw(`<span class="c-dim">THREAT   :</span> [<span class="${tcol}">${p.threat}</span>] ${p.tlevel}`);
       printRaw(`<span class="c-dim">LINK     :</span> <span class="c-cyan">${p.link}</span>`);
     });
 
-    div('c-green');
+    DIV();
     printBlank();
     println('c-yellow', `[*] ${projects.length} active operations enumerated.`);
+    println('c-dim',    '[*] Additional projects: github.com/Mr-Malman');
     printBlank();
   }
 
   function cmdExperience() {
     printBlank();
     println('c-yellow', '[*] Intercepting timeline packets from target: MAL...');
-    println('c-yellow', '[*] MITM attack successful. Decrypting payload...');
-    println('c-dim',    '──────────────────────────────────────────────────────────────');
+    println('c-yellow', '[*] ARP poisoning successful. Decrypting MITM payload...');
+    println('c-dim',    '[*] Wireshark capture: interface eth0 | filter: host 10.13.37.1');
+    println('c-dim',    '──────────────────────────────────────────────────────────────────────');
     printBlank();
 
     const jobs = [
       {
-        year: '2024→NOW', src: 'MRGS Infoway → Remote',
+        year: 'APR 2025→MAY 2025',
+        src:  'Hack Secure → Remote, India',
+        role: 'Cyber Security Intern',
+        payload: 'Active security intern role — live vulnerability research and assessment',
+        duration: 'April 2025 – May 2025 · 2 months · session in progress'
+      },
+      {
+        year: 'FEB 2025→APR 2025',
+        src:  'MRGS Infoway → Remote, Kolkata',
         role: 'Cyber Security Instructor',
-        payload: 'Cyber Vahini Project — training female students in cybersecurity, VAPT, digital security',
-        duration: '3 months · encrypted comms'
+        payload: 'Cyber Vahini Project — trained female students: cybersecurity fundamentals, VAPT, digital safety',
+        duration: 'Feb 2025 – Apr 2025 · 3 months'
       },
       {
-        year: '2024→NOW', src: 'Warsharks → Remote',
-        role: 'Penetration Tester (Part-Time)',
-        payload: 'Vulnerability assessments, exploiting security flaws, remediation reports',
-        duration: 'Ongoing · active session'
-      },
-      {
-        year: '2023',     src: 'Hacktify Cyber Security → Remote',
+        year: 'FEB 2025→MAR 2025',
+        src:  'Hacktify Cyber Security → Remote, Mumbai',
         role: 'VAPT Tester',
-        payload: 'Enterprise network pentesting — Burp Suite, Nmap, Metasploit: critical vuln identification',
-        duration: 'Undisclosed · high-value target'
+        payload: 'Enterprise network pentests — Burp Suite, Nmap, Metasploit: critical vuln identification + remediation',
+        duration: 'Feb 2025 – Mar 2025 · 2 months'
       },
       {
-        year: '2021-22',  src: 'India Cyber Security Solutions → Kolkata',
-        role: 'VAPT Intern',
-        payload: 'Network vulnerability assessments, pentesting — Nmap, Nessus, Burp Suite, Metasploit',
-        duration: 'July 2021 – May 2022 · 10 months'
-      },
-      {
-        year: '2022-23',  src: 'Sister Nivedita University → Kolkata',
-        role: 'Guest Lecturer',
-        payload: 'Digital Forensics & Cybersecurity — threat analysis, forensic investigation techniques',
-        duration: 'June 2022 – Sep 2023'
-      },
-      {
-        year: '2023',     src: 'EDCI → Kolkata (Onsite)',
+        year: 'AUG 2023→AUG 2024',
+        src:  'EDCI → Onsite, Kolkata',
         role: 'Junior Cyber Crime Investigator',
-        payload: 'Digital forensics & incident response — Autopsy, FTK, EnCase, Wireshark deep analysis',
-        duration: 'Undisclosed · classified assignment'
+        payload: 'Digital forensics & incident response — Autopsy, FTK, EnCase, Wireshark deep forensic analysis',
+        duration: 'Aug 2023 – Aug 2024 · 12 months · classified assignment'
       },
       {
-        year: '2024',     src: 'Behala Govt Polytechnic → Kolkata',
-        role: 'Guest Lecturer',
-        payload: 'Networking and VAPT — cybersecurity concepts and pentesting methodologies',
-        duration: 'Undisclosed'
+        year: 'MAR 2023→JUN 2023',
+        src:  'Indian Cyber Security Solutions → Onsite, Kolkata',
+        role: 'VAPT Intern',
+        payload: 'Network vulnerability assessments and pentesting — Nmap, Nessus, Burp Suite, Metasploit',
+        duration: 'Mar 2023 – Jun 2023 · 4 months'
       },
     ];
 
-    jobs.forEach((job, i) => {
-      printRaw(
-        `<span class="c-yellow">[${job.year}]</span> ` +
-        `<span class="c-dim">SRC:</span> <span class="c-cyan">${job.src}</span>`
-      );
-      printRaw(
-        `         <span class="c-dim">ROLE   :</span> <span class="c-green bold">${job.role}</span>`
-      );
-      println('',
-        `         PAYLOAD: ${job.payload}`
-      );
-      printRaw(
-        `         <span class="c-dim">BYTES  :</span> <span class="c-magenta">${job.duration}</span>`
-      );
-      if (i < jobs.length - 1) {
-        println('c-dim', '         · · ·');
-      }
+    const printPacket = (job, i, total) => {
+      const no = String(i+1).padStart(2,'0');
+      printRaw(`<span class="c-dim">PKT#${no}</span>  <span class="c-yellow">[${job.year}]</span>`);
+      printRaw(`        <span class="c-dim">SRC    :</span> <span class="c-cyan">${job.src}</span>`);
+      printRaw(`        <span class="c-dim">DST    :</span> <span class="c-green">Arya Koner | Mal</span>`);
+      printRaw(`        <span class="c-dim">ROLE   :</span> <span class="c-green bold">${job.role}</span>`);
+      println('',        `        PAYLOAD: ${job.payload}`);
+      printRaw(`        <span class="c-dim">BYTES  :</span> <span class="c-magenta">${job.duration}</span>`);
+      if (i < total - 1) println('c-dim', '        ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─');
       printBlank();
-    });
+    };
 
-    println('c-dim',    '──────────────────────────────────────────────────────────────');
+    jobs.forEach((job, i) => printPacket(job, i, jobs.length));
+
+    println('c-dim',    '──────────────────────────────────────────────────────────────────────');
     println('c-yellow', `[*] ${jobs.length} timeline packets intercepted and decrypted.`);
+    println('c-dim',    '[*] Packet capture saved: /tmp/mal_timeline.pcap');
     printBlank();
   }
 
   function cmdEducation() {
-    printBlank();
-    println('c-yellow', '[*] Initializing Windows kernel module loader...');
-    println('c-yellow', '[*] Resolving imports from education.dll...');
-    printBlank();
-    println('c-dim',    '──────────────────────────────────────────────────────────────');
-
-    const edu = [
-      {
-        dll: 'AmityUniversity_Noida.dll',
-        funcs: [
-          { fn: 'GetProcAddress("MSc_CyberForensic_CyberSecurity")', addr: '0x7FFE4821' },
-          { fn: 'GetProcAddress("Duration_2024_to_Present")',        addr: '0x7FFE4822' },
-          { fn: 'GetProcAddress("CGPA_8.41")',                       addr: '0x7FFE4823' },
-        ],
-        imports: 'Digital Forensics · Network Security · Cryptography · OS Internals · AI/ML',
-      },
-      {
-        dll: 'SupremeKnowledgeFoundation.dll',
-        funcs: [
-          { fn: 'GetProcAddress("BSc_ComputerScience")',    addr: '0x7FFE1001' },
-          { fn: 'GetProcAddress("Duration_2020_to_2023")',  addr: '0x7FFE1002' },
-          { fn: 'GetProcAddress("CGPA_8.86")',              addr: '0x7FFE1003' },
-        ],
-        imports: 'Algorithms · Data Structures · Networking · Mathematics · Software Dev',
-      },
+    const lines = [
+      { fn: () => printBlank() },
+      { fn: () => println('c-yellow', '[*] Initializing Windows kernel module loader...') },
+      { fn: () => println('c-yellow', '[*] Calling NtMapViewOfSection() on education.dll...') },
+      { fn: () => println('c-dim',    '[*] Resolving export table — walking PEB loader data...') },
+      { fn: () => printBlank() },
+      { fn: () => println('c-dim',    '──────────────────────────────────────────────────────────────────────') },
+      // Degree 1
+      { fn: () => printRaw('<span class="c-cyan">LoadLibrary(<span class="c-green">"AmityUniversityNoida.dll"</span>)</span>  →  <span class="c-green bold">0x7FFE0000  SUCCESS</span>') },
+      { fn: () => printRaw('  <span class="c-yellow">GetProcAddress("MSc_CyberForensic_CyberSecurity")</span>  →  <span class="c-magenta">0x7FFE4821</span>') },
+      { fn: () => printRaw('  <span class="c-yellow">GetProcAddress("Board_AmityUniversity")</span>          →  <span class="c-magenta">0x7FFE4822</span>') },
+      { fn: () => printRaw('  <span class="c-yellow">GetProcAddress("Duration_2024_to_Present")</span>       →  <span class="c-magenta">0x7FFE4823</span>') },
+      { fn: () => printRaw('  <span class="c-yellow">GetProcAddress("CGPA_8.01")</span>                      →  <span class="c-magenta">0x7FFE4824</span>') },
+      { fn: () => printRaw('  <span class="c-dim">ImportTable:</span> <span class="c-cyan">Digital Forensics · Network Security · Cryptography · AI/ML · OS Internals</span>') },
+      { fn: () => printBlank() },
+      // Degree 2
+      { fn: () => printRaw('<span class="c-cyan">LoadLibrary(<span class="c-green">"SKFGI_MAKAUT.dll"</span>)</span>              →  <span class="c-green bold">0x7FFE1000  SUCCESS</span>') },
+      { fn: () => printRaw('  <span class="c-yellow">GetProcAddress("BSc_CyberSecurity")</span>              →  <span class="c-magenta">0x7FFE1001</span>') },
+      { fn: () => printRaw('  <span class="c-yellow">GetProcAddress("Board_MAKAUTUniversity")</span>         →  <span class="c-magenta">0x7FFE1002</span>') },
+      { fn: () => printRaw('  <span class="c-yellow">GetProcAddress("Year_2023")</span>                      →  <span class="c-magenta">0x7FFE1003</span>') },
+      { fn: () => printRaw('  <span class="c-yellow">GetProcAddress("CGPA_8.86")</span>                      →  <span class="c-magenta">0x7FFE1004</span>') },
+      { fn: () => printRaw('  <span class="c-dim">ImportTable:</span> <span class="c-cyan">Algorithms · Data Structures · Networking · OS · Software Development</span>') },
+      { fn: () => printBlank() },
+      { fn: () => println('c-dim',    '──────────────────────────────────────────────────────────────────────') },
+      { fn: () => println('c-yellow', '[*] Scanning certification registry (HKLM\\SOFTWARE\\Certs)...') },
+      { fn: () => printBlank() },
+      // Certs
+      { fn: () => printRaw('  <span class="c-green">[OK]</span>  CompTIA Security+              <span class="c-dim">[VERIFIED]  EC id: 97e48515</span>') },
+      { fn: () => printRaw('  <span class="c-green">[OK]</span>  Certified Ethical Hacker MASTER <span class="c-dim">[VERIFIED]  EC-Council</span>') },
+      { fn: () => printRaw('  <span class="c-green">[OK]</span>  CEH (Practical)                <span class="c-dim">[VERIFIED]  EC-Council hands-on</span>') },
+      { fn: () => printRaw('  <span class="c-green">[OK]</span>  CEH v13 AI                     <span class="c-dim">[VERIFIED]  EC-Council AI edition</span>') },
+      { fn: () => printRaw('  <span class="c-green">[OK]</span>  Google Cybersecurity           <span class="c-dim">[VERIFIED]  Google Career Certificate</span>') },
+      { fn: () => printRaw('  <span class="c-green">[OK]</span>  Cisco Cyber Threat Management  <span class="c-dim">[VERIFIED]  Cisco NetAcad</span>') },
+      { fn: () => printBlank() },
+      { fn: () => println('c-green bold', '[OK] Education module fully mapped into process memory.') },
+      { fn: () => println('c-dim',        '[*] Base address: 0x00400000 | 2 degrees · 6 certifications loaded') },
+      { fn: () => printBlank() },
     ];
-
-    edu.forEach((e, i) => {
-      printRaw(`<span class="c-cyan">LoadLibrary(<span class="c-green">"${e.dll}"</span>)</span>  →  <span class="c-green">SUCCESS</span>`);
-      e.funcs.forEach(f => {
-        printRaw(
-          `  <span class="c-yellow">${f.fn}</span>` +
-          `  →  <span class="c-magenta">${f.addr}</span>`
-        );
-      });
-      printRaw(`  <span class="c-dim">ImportTable:</span> <span class="c-cyan">${e.imports}</span>`);
-      if (i < edu.length - 1) printBlank();
-    });
-
-    printBlank();
-    println('c-dim',    '──────────────────────────────────────────────────────────────');
-    println('c-yellow', '[*] Scanning for certifications...');
-    printBlank();
-
-    const certs = [
-      'CompTIA Security+     [VERIFIED] credly.com/badges/97e48515',
-      'CompTIA Network+      [VERIFIED] credly.com/badges/0dfc0950',
-      'CEH v13 AI            [VERIFIED] EC-Council Certified Ethical Hacker',
-    ];
-    certs.forEach(c => {
-      printRaw(`  <span class="c-green">[OK]</span> <span>${c}</span>`);
-    });
-
-    printBlank();
-    println('c-green bold', '[OK] Education module fully mapped into process memory.');
-    println('c-dim',        '[*] Base address: 0x00400000 | Size: 2 degrees + 3 certifications');
-    printBlank();
+    let i = 0;
+    const t = setInterval(() => {
+      if (i >= lines.length) { clearInterval(t); return; }
+      lines[i++].fn();
+    }, 55);
   }
 
   function cmdTools() {
     printBlank();
-    println('c-yellow', '[*] Querying botnet C2 — arming arsenal...');
-    println('c-yellow', '[*] Syncing tool registry from zombie nodes...');
+    println('c-yellow', '[*] Querying botnet C2 panel — arming arsenal...');
+    println('c-yellow', '[*] Syncing tool registry from 847 zombie nodes...');
+    println('c-dim',    '[*] Source: operator profile + CV verification');
     printBlank();
 
+    // Tools direct from CV: IDA Pro, Ghidra, Metasploit, Burp Suite, Splunk, Wireshark,
+    // Volatility, Python, C/C++, Bash, Linux, Nim, Nmap, Nessus, Autopsy, FTK, EnCase
     const tools = [
-      { name:'Metasploit   ', cat:'Exploitation  ', status:'LOADED' },
-      { name:'Burp Suite   ', cat:'Web Attack    ', status:'LOADED' },
-      { name:'Wireshark    ', cat:'Recon/Analysis', status:'LOADED' },
-      { name:'Nmap         ', cat:'Enumeration   ', status:'LOADED' },
-      { name:'Nessus       ', cat:'Vuln Scanning ', status:'LOADED' },
-      { name:'Python       ', cat:'Scripting/Dev ', status:'LOADED' },
-      { name:'Bash/Linux   ', cat:'Automation    ', status:'LOADED' },
-      { name:'Ghidra       ', cat:'Reversing     ', status:'LOADED' },
-      { name:'Autopsy      ', cat:'Forensics     ', status:'LOADED' },
-      { name:'FTK          ', cat:'Forensics     ', status:'LOADED' },
-      { name:'EnCase       ', cat:'Forensics     ', status:'LOADED' },
-      { name:'Scapy        ', cat:'Packet Craft  ', status:'LOADED' },
-      { name:'Aircrack-ng  ', cat:'Wireless      ', status:'LOADED' },
-      { name:'Hashcat      ', cat:'Cracking      ', status:'LOADED' },
-      { name:'John the Rip ', cat:'Cracking      ', status:'LOADED' },
-      { name:'SQLMap       ', cat:'SQL Injection  ', status:'LOADED' },
-      { name:'Mimikatz     ', cat:'Credential Dmp', status:'LOADED' },
+      { name:'IDA Pro       ', cat:'Reverse Eng   ', status:'LOADED' },
+      { name:'Ghidra        ', cat:'Reverse Eng   ', status:'LOADED' },
+      { name:'Metasploit    ', cat:'Exploitation  ', status:'LOADED' },
+      { name:'Burp Suite    ', cat:'Web Attack    ', status:'LOADED' },
+      { name:'Splunk        ', cat:'SIEM/Detect   ', status:'LOADED' },
+      { name:'Wireshark     ', cat:'Packet Anal   ', status:'LOADED' },
+      { name:'Volatility    ', cat:'Mem Forensics ', status:'LOADED' },
+      { name:'Python        ', cat:'Scripting/Dev ', status:'LOADED' },
+      { name:'C / C++       ', cat:'Systems Dev   ', status:'LOADED' },
+      { name:'Bash/Linux    ', cat:'Automation    ', status:'LOADED' },
+      { name:'Nim           ', cat:'Malware Dev   ', status:'LOADED' },
+      { name:'Nmap          ', cat:'Enumeration   ', status:'LOADED' },
+      { name:'Nessus        ', cat:'Vuln Scanning ', status:'LOADED' },
+      { name:'Autopsy       ', cat:'Forensics     ', status:'LOADED' },
+      { name:'FTK           ', cat:'Forensics     ', status:'LOADED' },
+      { name:'EnCase        ', cat:'Forensics     ', status:'LOADED' },
     ];
 
-    // Header
-    println('c-dim', '┌──────────────────┬──────────────────┬────────────┐');
+    println('c-dim', '┌───────────────────┬──────────────────┬────────────┐');
     printRaw(
-      '│ <span class="c-cyan tbl-head">TOOL            </span> │ ' +
-      '<span class="c-cyan tbl-head">CATEGORY        </span> │ ' +
-      '<span class="c-cyan tbl-head">STATUS    </span> │'
+      '│ <span class="c-cyan">TOOL             </span> │ ' +
+      '<span class="c-cyan">CATEGORY        </span> │ ' +
+      '<span class="c-cyan">STATUS    </span> │'
     );
-    println('c-dim', '├──────────────────┼──────────────────┼────────────┤');
+    println('c-dim', '├───────────────────┼──────────────────┼────────────┤');
 
-    tools.forEach(t => {
-      printRaw(
-        `│ <span class="c-green">${t.name}</span> │ ` +
-        `${t.cat} │ ` +
-        `<span class="c-green bold">${t.status}  </span> │`
-      );
-    });
+    const printRow = (t, i) => {
+      setTimeout(() => {
+        printRaw(
+          `│ <span class="c-green">${t.name}</span>│ ` +
+          `<span>${t.cat}</span>│ ` +
+          `<span class="c-green bold">${t.status}   </span>│`
+        );
+        if (i === tools.length - 1) {
+          println('c-dim', '└───────────────────┴──────────────────┴────────────┘');
+          printBlank();
+          println('c-green bold', `[+] ${tools.length} weapons loaded. Arsenal fully operational.`);
+          println('c-yellow', '[*] All tools synced across botnet nodes.');
+          printBlank();
+        }
+      }, i * 60);
+    };
 
-    println('c-dim', '└──────────────────┴──────────────────┴────────────┘');
-    printBlank();
-    println('c-green', `[+] ${tools.length} weapons loaded. Arsenal fully operational.`);
-    println('c-yellow', '[*] All tools synced across botnet nodes.');
-    printBlank();
+    tools.forEach((t, i) => printRow(t, i));
   }
 
   function cmdSocial() {
     printBlank();
-    println('c-yellow', '[*] Launching OSINT scan on target: Mal (Mr. Malman)...');
-    println('c-yellow', '[*] Using theHarvester + Maltego correlation engine...');
+    println('c-yellow', '[*] Launching theHarvester against target: Arya Koner | Mr. Malman...');
+    println('c-yellow', '[*] Modules: google · bing · github · linkedin · twitter · hunter.io');
+    println('c-dim',    '[*] Correlation engine: Maltego CE v4.4.0');
     printBlank();
 
     const sources = [
-      { source:'GitHub',         q:'Querying source code repositories...',  hit:'+', val:'github.com/Mr-Malman',                       note: '12+ repos · Python · Security tools' },
-      { source:'LinkedIn',       q:'Querying professional network...',      hit:'+', val:'linkedin.com/in/hackarya007',               note: 'Cybersecurity Researcher profile' },
-      { source:'Twitter/X',      q:'Querying social media...',              hit:'+', val:'x.com/mr_malman',                           note: 'Active · Security content' },
-      { source:'YouTube',        q:'Querying video platform...',            hit:'+', val:'youtube.com/@Mr-Malman',                    note: 'Security tutorials & walkthroughs' },
-      { source:'Medium',         q:'Querying blog platform...',             hit:'+', val:'mr-malman.medium.com',                      note: 'Research articles & deep dives' },
-      { source:'Portfolio',      q:'Querying personal site...',             hit:'+', val:'mr-malman.github.io/Malworld',              note: 'CTF-themed cybersecurity portfolio' },
-      { source:'MalwareBazaar',  q:'Querying threat intel platform...',     hit:'+', val:'bazaar.abuse.ch/user/31425',               note: 'Malware samples & threat intel' },
-      { source:'Credly',         q:'Querying certification registry...',    hit:'+', val:'credly.com/users/Mr-Malman',               note: 'Verified: Security+ · Network+ · CEH' },
+      { source:'GitHub',        delay: 300,  hit:'+', val:'github.com/Mr-Malman',             note: 'Source repos · NimHunter · BLACKICE · BADNET · 12+ repos' },
+      { source:'Portfolio',     delay: 700,  hit:'+', val:'mr-malman.github.io/Malworld',     note: 'Live CTF-themed terminal portfolio' },
+      { source:'LinkedIn',      delay: 1100, hit:'+', val:'linkedin.com/in/hackarya007',      note: 'Cybersecurity Researcher — Noida/Kolkata' },
+      { source:'Twitter/X',     delay: 1500, hit:'+', val:'x.com/mr_malman',                  note: 'Active · threat intel · security content' },
+      { source:'YouTube',       delay: 1900, hit:'+', val:'youtube.com/@Mr-Malman',           note: 'Security tutorials & walkthroughs' },
+      { source:'Medium',        delay: 2300, hit:'+', val:'mr-malman.medium.com',             note: 'Research articles · malware analysis deep dives' },
+      { source:'MalwareBazaar', delay: 2700, hit:'+', val:'bazaar.abuse.ch/user/31425',       note: 'Malware samples & threat intelligence published' },
+      { source:'Email',         delay: 3100, hit:'+', val:'arya.koner07@gmail.com',           note: 'Primary contact — operator reachable' },
     ];
 
     sources.forEach(s => {
-      println('c-yellow', `[*] Querying ${s.source}... ${s.q}`);
-      printRaw(
-        `<span class="c-green">[${s.hit}]</span> ` +
-        `<span class="c-cyan">${s.val}</span>  ` +
-        `<span class="c-dim">// ${s.note}</span>`
-      );
+      setTimeout(() => {
+        println('c-yellow', `[*] Querying ${s.source}...`);
+        setTimeout(() => {
+          printRaw(
+            `<span class="c-green">[${s.hit}]</span> ` +
+            `<span class="c-cyan">${s.val}</span>  ` +
+            `<span class="c-dim">// ${s.note}</span>`
+          );
+          if (s === sources[sources.length - 1]) {
+            setTimeout(() => {
+              printBlank();
+              println('c-dim',    '──────────────────────────────────────────────────────────────────────');
+              println('c-yellow', `[*] Scan complete. ${sources.length} accounts enumerated & exfiltrated.`);
+              println('c-green',  '[+] OSINT profile compiled. Significant digital footprint confirmed.');
+              println('c-dim',    '[*] Report saved: /tmp/osint_mal_operator.txt');
+              printBlank();
+            }, 400);
+          }
+        }, 250);
+      }, s.delay);
     });
-
-    printBlank();
-    println('c-dim',    '──────────────────────────────────────────────────────────────');
-    println('c-yellow', `[*] Scan complete. ${sources.length} accounts enumerated & exfiltrated.`);
-    println('c-green',  '[+] OSINT profile compiled. Target has significant digital footprint.');
-    printBlank();
   }
 
   function cmdContact() {
