@@ -1,590 +1,1031 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Cybersecurity Portfolio for [Your Name]"
-    />
-    <!-- CTF Theme: JetBrains Mono font -->
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
-    <title>Malworld | Cybersecurity Portfolio</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cmd.exe — MALWORLD\C:\Windows\System32</title>
+  <meta name="description" content="Mal | Mr. Malman — Cybersecurity Researcher & Developer. Interactive hacker terminal portfolio." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    /* ══════════════════════════════════════════════════════════════
+       RESET & ROOT
+    ══════════════════════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <!-- ═══════════════════════════════════════════════════════════
-         CTF THEME OVERLAY + BOOT SCREEN
-         Self-contained block — does not touch any React components.
-         ═══════════════════════════════════════════════════════════ -->
-    <style>
-      /* ── 1. GLOBAL FONT & BASE ───────────────────────────────── */
-      :root {
-        --ctf-green:  #00ff41;
-        --ctf-cyan:   #00d4ff;
-        --ctf-bg:     #0d0d0d;
-        --ctf-card-bg:#0f1923;
-        --ctf-border: rgba(0, 255, 65, 0.35);
+    :root {
+      --bg:       #0a0a0a;
+      --text:     #cccccc;
+      --green:    #00ff41;
+      --green-dim:#003b00;
+      --cyan:     #00d4ff;
+      --red:      #ff4444;
+      --yellow:   #ffcc00;
+      --prompt:   #00ff41;
+      --font:     'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      --fs:       13px;
+      --lh:       1.8;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: var(--fs);
+      line-height: var(--lh);
+      overflow: hidden;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       CRT SCANLINE OVERLAY
+    ══════════════════════════════════════════════════════════════ */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 9999;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px, transparent 3px,
+        rgba(0,0,0,0.15) 3px, rgba(0,0,0,0.15) 4px
+      );
+      animation: scanroll 12s linear infinite;
+    }
+    @keyframes scanroll {
+      from { background-position: 0 0; }
+      to   { background-position: 0 120px; }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       MATRIX CANVAS
+    ══════════════════════════════════════════════════════════════ */
+    #matrix-canvas {
+      position: fixed; inset: 0;
+      z-index: -1;
+      opacity: 0.07;
+      pointer-events: none;
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       WINDOW CHROME (CMD.EXE TITLE BAR)
+    ══════════════════════════════════════════════════════════════ */
+    #window-chrome {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 32px;
+      background: #1c1c1c;
+      border-bottom: 1px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      z-index: 1000;
+      user-select: none;
+    }
+    #window-chrome .title-left {
+      display: flex; align-items: center; gap: 8px;
+    }
+    #window-chrome .cmd-icon {
+      width: 16px; height: 16px;
+      background: #000;
+      border: 1px solid #555;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; color: var(--green);
+      font-weight: 700;
+    }
+    #window-chrome .title-text {
+      font-size: 11px; color: #999; letter-spacing: 0.03em;
+    }
+    #window-chrome .win-btns {
+      display: flex; gap: 4px;
+    }
+    #window-chrome .win-btn {
+      width: 46px; height: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: #888;
+      border: none; background: transparent; cursor: pointer;
+      border-radius: 2px;
+      transition: background 0.15s;
+    }
+    #window-chrome .win-btn:hover { background: #333; color: #ccc; }
+    #window-chrome .win-btn.close:hover { background: #c42b1c; color: #fff; }
+
+    /* ══════════════════════════════════════════════════════════════
+       TERMINAL WRAPPER
+    ══════════════════════════════════════════════════════════════ */
+    #terminal-wrapper {
+      position: fixed;
+      top: 32px; left: 0; right: 0; bottom: 0;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Output area ── */
+    #output {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px 8px;
+      scroll-behavior: smooth;
+    }
+    #output::-webkit-scrollbar { width: 6px; }
+    #output::-webkit-scrollbar-track { background: #111; }
+    #output::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+    /* ── Input row ── */
+    #input-row {
+      display: flex;
+      align-items: center;
+      padding: 6px 16px 10px;
+      border-top: 1px solid #1a1a1a;
+      background: rgba(0,0,0,0.3);
+      gap: 0;
+      flex-shrink: 0;
+    }
+    #prompt-label {
+      color: var(--green);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    #cmd-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: var(--fs);
+      line-height: var(--lh);
+      caret-color: var(--green);
+      padding: 0 6px;
+    }
+    #cmd-input::selection { background: rgba(0,255,65,0.2); }
+
+    /* ══════════════════════════════════════════════════════════════
+       OUTPUT ELEMENTS
+    ══════════════════════════════════════════════════════════════ */
+    .line        { display: block; white-space: pre-wrap; word-break: break-all; }
+    .line-blank  { display: block; height: calc(var(--lh) * var(--fs)); }
+
+    .c-green   { color: var(--green); }
+    .c-cyan    { color: var(--cyan); }
+    .c-red     { color: var(--red); }
+    .c-yellow  { color: var(--yellow); }
+    .c-dim     { color: #555; }
+    .c-white   { color: #ffffff; }
+    .c-gray    { color: #888; }
+    .c-prompt  { color: var(--prompt); }
+    .c-magenta { color: #c084fc; }
+
+    .bold { font-weight: 700; }
+    .italic { font-style: italic; }
+
+    /* echoed command line */
+    .cmd-echo {
+      color: var(--green);
+      margin-top: 4px;
+    }
+    .cmd-echo::before { content: 'C:\\Users\\victim> '; color: var(--prompt); }
+
+    /* ══════════════════════════════════════════════════════════════
+       CURSOR BLINK
+    ══════════════════════════════════════════════════════════════ */
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .blink { animation: blink 1s step-end infinite; }
+
+    /* ══════════════════════════════════════════════════════════════
+       MOBILE
+    ══════════════════════════════════════════════════════════════ */
+    @media (max-width: 600px) {
+      :root { --fs: 11px; }
+      #output { padding: 8px 10px 6px; }
+      #input-row { padding: 4px 10px 8px; }
+      #window-chrome .win-btns { display: none; }
+    }
+
+    /* ══════════════════════════════════════════════════════════════
+       HELP TABLE
+    ══════════════════════════════════════════════════════════════ */
+    .help-row { display: flex; gap: 2ch; }
+    .help-cmd { color: var(--cyan); min-width: 14ch; flex-shrink: 0; }
+    .help-desc { color: #999; }
+
+    /* ══════════════════════════════════════════════════════════════
+       TOOLS TABLE
+    ══════════════════════════════════════════════════════════════ */
+    .tbl-row { display: flex; }
+    .tbl-cell { padding: 0 1ch; border-right: 1px solid #00ff4133; min-width: 18ch; }
+    .tbl-cell:last-child { border-right: none; }
+    .tbl-head { color: var(--cyan); font-weight: 700; }
+    .tbl-status { color: var(--green); }
+  </style>
+</head>
+<body>
+
+<!-- MATRIX RAIN CANVAS -->
+<canvas id="matrix-canvas"></canvas>
+
+<!-- WINDOW CHROME -->
+<div id="window-chrome">
+  <div class="title-left">
+    <div class="cmd-icon">C:</div>
+    <span class="title-text">cmd.exe — MALWORLD\C:\Windows\System32</span>
+  </div>
+  <div class="win-btns">
+    <button class="win-btn" title="Minimize">─</button>
+    <button class="win-btn" title="Maximize">□</button>
+    <button class="win-btn close" title="Close" id="btn-close">✕</button>
+  </div>
+</div>
+
+<!-- TERMINAL WRAPPER -->
+<div id="terminal-wrapper">
+  <div id="output"></div>
+  <div id="input-row">
+    <span id="prompt-label">C:\Users\victim&gt;&nbsp;</span>
+    <input id="cmd-input" type="text" autocomplete="off" autocorrect="off"
+           autocapitalize="none" spellcheck="false" autofocus
+           aria-label="Terminal input" />
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ══════════════════════════════════════════════════════════════
+     MATRIX RAIN
+  ══════════════════════════════════════════════════════════════ */
+  const canvas = document.getElementById('matrix-canvas');
+  const ctx    = canvas.getContext('2d');
+  const HEX    = '0123456789ABCDEFアイウエカキクサシスセタチネノハヒフヘホマミムメモ';
+  let cols, drops, rafId, paused = false;
+
+  function resizeMatrix() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    cols  = Math.floor(canvas.width / 14);
+    drops = Array.from({ length: cols }, () => Math.random() * -canvas.height / 14);
+  }
+
+  function drawMatrix() {
+    if (paused) { rafId = requestAnimationFrame(drawMatrix); return; }
+    ctx.fillStyle = 'rgba(10,10,10,0.04)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drops.forEach((y, i) => {
+      const bright = Math.random() > 0.9;
+      ctx.fillStyle = bright ? '#00ff41' : '#006b1b';
+      ctx.font = '13px "JetBrains Mono", monospace';
+      ctx.fillText(HEX[Math.floor(Math.random() * HEX.length)], i * 14, y * 14);
+      if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i] += 0.6;
+    });
+    rafId = requestAnimationFrame(drawMatrix);
+  }
+
+  window.addEventListener('resize', resizeMatrix);
+  document.addEventListener('visibilitychange', () => { paused = document.hidden; });
+  resizeMatrix();
+  rafId = requestAnimationFrame(drawMatrix);
+
+  /* ══════════════════════════════════════════════════════════════
+     DOM REFS
+  ══════════════════════════════════════════════════════════════ */
+  const output    = document.getElementById('output');
+  const input     = document.getElementById('cmd-input');
+  const wrapEl    = document.getElementById('terminal-wrapper');
+
+  document.getElementById('btn-close').addEventListener('click', () => {
+    runCommand('exit');
+  });
+
+  /* ══════════════════════════════════════════════════════════════
+     PRINT HELPERS
+  ══════════════════════════════════════════════════════════════ */
+  function span(cls, text) {
+    const s = document.createElement('span');
+    s.className = 'line ' + (cls || '');
+    s.textContent = text;
+    return s;
+  }
+  function raw(html) {
+    const s = document.createElement('span');
+    s.className = 'line';
+    s.innerHTML = html;
+    return s;
+  }
+  function blank() {
+    const d = document.createElement('span');
+    d.className = 'line-blank';
+    return d;
+  }
+  function print(el) {
+    output.appendChild(el);
+    output.scrollTop = output.scrollHeight;
+  }
+  function println(cls, text) { print(span(cls, text)); }
+  function printRaw(html)     { print(raw(html)); }
+  function printBlank()       { print(blank()); }
+
+  /* ══════════════════════════════════════════════════════════════
+     TYPEWRITER ENGINE
+  ══════════════════════════════════════════════════════════════ */
+  function typewrite(lines, charDelay, lineDelay, onDone) {
+    let li = 0;
+
+    function nextLine() {
+      if (li >= lines.length) { if (onDone) onDone(); return; }
+      const def = lines[li++];
+      if (def === null) { printBlank(); setTimeout(nextLine, lineDelay * 0.3); return; }
+
+      const cls   = def.cls  || '';
+      const text  = def.text || '';
+      const delay = def.delay !== undefined ? def.delay : charDelay;
+
+      const lineEl = document.createElement('span');
+      lineEl.className = 'line ' + cls;
+      output.appendChild(lineEl);
+
+      let ci = 0;
+      function nextChar() {
+        if (ci >= text.length) { output.scrollTop = output.scrollHeight; setTimeout(nextLine, lineDelay); return; }
+        lineEl.textContent += text[ci++];
+        output.scrollTop = output.scrollHeight;
+        setTimeout(nextChar, delay);
       }
-
-      *, *::before, *::after {
-        font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
-      }
-
-      html, body {
-        background-color: var(--ctf-bg) !important;
-        color: #c9d1d9 !important;
-      }
-
-      /* ── 2. CRT SCANLINE OVERLAY ─────────────────────────────── */
-      body::before {
-        content: '';
-        position: fixed;
-        inset: 0;
-        z-index: 9998;
-        pointer-events: none;
-        background: repeating-linear-gradient(
-          to bottom,
-          transparent 0px,
-          transparent 3px,
-          rgba(0,0,0,0.18) 3px,
-          rgba(0,0,0,0.18) 4px
-        );
-        animation: scanShift 10s linear infinite;
-      }
-
-      @keyframes scanShift {
-        0%   { background-position: 0 0; }
-        100% { background-position: 0 100px; }
-      }
-
-      /* ── 3. MATRIX RAIN CANVAS ───────────────────────────────── */
-      #ctf-matrix-canvas {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
-        opacity: 0.06;
-      }
-
-      /* ── 4. GLITCH ANIMATION ON HEADINGS ─────────────────────── */
-      @keyframes ctfGlitch {
-        0%   { text-shadow: none; clip-path: none; }
-        10%  { text-shadow: 2px 0 var(--ctf-cyan), -2px 0 #ff0055; transform: translate(-2px,0); }
-        20%  { text-shadow: -2px 0 var(--ctf-green), 2px 0 #ff0055; transform: translate(2px,0); }
-        30%  { text-shadow: none; transform: translate(0,0); }
-        100% { text-shadow: none; clip-path: none; }
-      }
-
-      h1:hover, h2:hover, h3:hover {
-        animation: ctfGlitch 0.4s steps(1) !important;
-        cursor: default;
-      }
-
-      /* ── 5. TERMINAL NAV BADGE ────────────────────────────────── */
-      #ctf-nav-badge {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 9000;
-        padding: 6px 14px;
-        font-size: 12px;
-        color: var(--ctf-green);
-        background: rgba(0,0,0,0.7);
-        border-bottom: 1px solid var(--ctf-border);
-        border-right: 1px solid var(--ctf-border);
-        border-bottom-right-radius: 8px;
-        letter-spacing: 0.04em;
-        pointer-events: none;
-        user-select: none;
-      }
-
-      #ctf-nav-badge span.prompt-cyan {
-        color: var(--ctf-cyan);
-      }
-      #ctf-nav-badge span.prompt-blink {
-        animation: ctfBlink 1s step-end infinite;
-        color: var(--ctf-green);
-      }
-
-      /* ── 6. HERO BLINKING CURSOR ──────────────────────────────── */
-      @keyframes ctfBlink {
-        0%, 100% { opacity: 1; }
-        50%       { opacity: 0; }
-      }
-
-      .ctf-cursor::after {
-        content: '▋';
-        color: var(--ctf-green);
-        animation: ctfBlink 1s step-end infinite;
-        margin-left: 2px;
-      }
-
-      /* ── 7. CTF CHALLENGE CARD SYSTEM ────────────────────────── */
-      .ctf-challenge-card {
-        position: relative !important;
-        border-left: 3px solid var(--ctf-green) !important;
-        border-color: rgba(0,255,65,0.25) !important;
-        background: #0f1923 !important;
-        transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
-      }
-
-      .ctf-challenge-card:hover {
-        box-shadow: 0 0 22px rgba(0,255,65,0.12), inset 0 0 30px rgba(0,212,255,0.03);
-        border-left-color: var(--ctf-green) !important;
-        transform: translateY(-1px);
-      }
-
-      /* Top-right meta row: category + difficulty stacked */
-      .ctf-card-meta {
-        position: absolute;
-        top: 8px;
-        right: 10px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 4px;
-        pointer-events: none;
-        z-index: 10;
-      }
-
-      /* Category badge: Web / Pwn / Forensics / Crypto / Misc */
-      .ctf-cat-badge {
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        padding: 2px 7px;
-        border-radius: 3px;
-        text-transform: uppercase;
-        border: 1px solid;
-      }
-      .ctf-cat-web     { color: #00d4ff; background: rgba(0,212,255,0.10); border-color: rgba(0,212,255,0.35); }
-      .ctf-cat-pwn     { color: #ff4466; background: rgba(255,68,102,0.10); border-color: rgba(255,68,102,0.35); }
-      .ctf-cat-forensics { color: #c084fc; background: rgba(192,132,252,0.10); border-color: rgba(192,132,252,0.35); }
-      .ctf-cat-crypto  { color: #fbbf24; background: rgba(251,191,36,0.10); border-color: rgba(251,191,36,0.35); }
-      .ctf-cat-misc    { color: #94a3b8; background: rgba(148,163,184,0.08); border-color: rgba(148,163,184,0.25); }
-
-      /* Difficulty badge */
-      .ctf-diff-badge {
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        padding: 2px 7px;
-        border-radius: 3px;
-        text-transform: uppercase;
-        border: 1px solid;
-      }
-      .ctf-diff-hard   { color: #ff4444; background: rgba(255,68,68,0.10); border-color: rgba(255,68,68,0.4); }
-      .ctf-diff-medium { color: #f59e0b; background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.4); }
-      .ctf-diff-easy   { color: #00ff41; background: rgba(0,255,65,0.10);  border-color: rgba(0,255,65,0.4);  }
-
-      /* pts label — bottom-left */
-      .ctf-pts-label {
-        position: absolute;
-        bottom: 8px;
-        left: 14px;
-        font-size: 10px;
-        font-weight: 700;
-        color: var(--ctf-cyan);
-        letter-spacing: 0.05em;
-        pointer-events: none;
-        z-index: 10;
-        opacity: 0.85;
-      }
-
-      /* UNSOLVED / SOLVED toggle — bottom-right */
-      .ctf-solve-toggle {
-        position: absolute;
-        bottom: 8px;
-        right: 10px;
-        font-size: 9px;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        padding: 2px 8px;
-        border-radius: 3px;
-        border: 1px solid rgba(255,68,68,0.5);
-        color: #ff4444;
-        background: rgba(255,68,68,0.08);
-        cursor: pointer;
-        z-index: 10;
-        transition: all 0.2s ease;
-        user-select: none;
-      }
-      .ctf-solve-toggle.solved {
-        color: var(--ctf-green);
-        background: rgba(0,255,65,0.08);
-        border-color: rgba(0,255,65,0.4);
-      }
-      .ctf-solve-toggle.solving {
-        animation: ctfSolvePulse 0.4s ease;
-      }
-      @keyframes ctfSolvePulse {
-        0%   { transform: scale(1); opacity: 1; }
-        40%  { transform: scale(1.15); opacity: 0.6; }
-        100% { transform: scale(1); opacity: 1; }
-      }
-
-      /* Keep existing pts badge from step-1 hidden — replaced by ctf-pts-label */
-      .ctf-pts-badge { display: none !important; }
-
-      /* ── 8. XP SKILL BAR ANIMATION ───────────────────────────── */
-      @keyframes xpFill {
-        from { background-position: 200% center; }
-        to   { background-position: -200% center; }
-      }
-
-      [class*="skill"] div[style*="width"],
-      [class*="progress"] > div,
-      [role="progressbar"] > div {
-        background: linear-gradient(90deg,
-          var(--ctf-green) 0%,
-          var(--ctf-cyan)  50%,
-          var(--ctf-green) 100%) !important;
-        background-size: 200% auto !important;
-        animation: xpFill 3s linear infinite !important;
-        box-shadow: 0 0 8px rgba(0,255,65,0.4) !important;
-      }
-
-      /* ── 9. BOOT SCREEN ───────────────────────────────────────── */
-      #ctf-boot-screen {
-        position: fixed;
-        inset: 0;
-        z-index: 99999;
-        background: #0a0a0a;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-        padding: 10vw;
-        box-sizing: border-box;
-        transition: opacity 0.7s ease;
-      }
-
-      #ctf-boot-screen.ctf-fade-out {
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      #ctf-boot-lines {
-        line-height: 2;
-        font-size: clamp(13px, 2vw, 16px);
-        white-space: pre;
-      }
-
-      #ctf-boot-lines .ok {
-        color: var(--ctf-green);
-      }
-
-      #ctf-boot-lines .boot-line {
-        color: #ffffff;
-        display: block;
-      }
-
-      #ctf-boot-cursor {
-        display: inline-block;
-        width: 9px;
-        height: 1.1em;
-        background: var(--ctf-green);
-        vertical-align: text-bottom;
-        animation: ctfBlink 0.7s step-end infinite;
-        margin-left: 2px;
-      }
-    </style>
-
-    <!-- BOOT SCREEN MARKUP -->
-    <div id="ctf-boot-screen">
-      <div id="ctf-boot-lines"></div>
-      <span id="ctf-boot-cursor"></span>
-    </div>
-
-    <!-- TERMINAL NAV BADGE -->
-    <div id="ctf-nav-badge">
-      <span class="prompt-cyan">~/malworld</span> $ <span class="prompt-blink">▋</span>
-    </div>
-
-    <!-- MATRIX RAIN CANVAS -->
-    <canvas id="ctf-matrix-canvas"></canvas>
-
-    <script>
-    (function () {
-      'use strict';
-
-      /* ─────────────────────────────────────────────────────────
-         A. MATRIX RAIN
-      ───────────────────────────────────────────────────────── */
-      const canvas  = document.getElementById('ctf-matrix-canvas');
-      const ctx     = canvas.getContext('2d');
-      const CHARS   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*<>/\\|{}[]アイウエオカキクケコサシスセソ';
-      let cols, drops;
-
-      function resizeMatrix() {
-        canvas.width  = window.innerWidth;
-        canvas.height = window.innerHeight;
-        cols  = Math.floor(canvas.width / 16);
-        drops = Array.from({ length: cols }, () => Math.random() * -50);
-      }
-
-      function drawMatrix() {
-        ctx.fillStyle = 'rgba(13,13,13,0.05)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#00ff41';
-        ctx.font = '14px "JetBrains Mono", monospace';
-        drops.forEach((y, i) => {
-          const char = CHARS[Math.floor(Math.random() * CHARS.length)];
-          ctx.fillText(char, i * 16, y * 16);
-          if (y * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-          drops[i] += 0.5;
-        });
-      }
-
-      window.addEventListener('resize', resizeMatrix);
-      resizeMatrix();
-      setInterval(drawMatrix, 55);
-
-      /* ─────────────────────────────────────────────────────────
-         B. CTF CHALLENGE CARD DECORATOR  (runs after React mounts)
-      ───────────────────────────────────────────────────────── */
-
-      // ── Category keyword map ──────────────────────────────────
-      const CAT_RULES = [
-        { cat: 'pwn',      cls: 'ctf-cat-pwn',
-          kw: ['exploit','penetration','pentest','pentest','vapt','metasploit','burp suite',
-               'nmap','nessus','payload','shellcode','buffer overflow','rce','privilege',
-               'attack','malware','keylogger','honeypot'] },
-        { cat: 'forensics', cls: 'ctf-cat-forensics',
-          kw: ['forensic','autopsy','ftk','encase','wireshark','incident response',
-               'digital forensics','cybercrime','investigat'] },
-        { cat: 'crypto',   cls: 'ctf-cat-crypto',
-          kw: ['crypto','cryptograph','cipher','hash','otp','encryption','decryption','key'] },
-        { cat: 'web',      cls: 'ctf-cat-web',
-          kw: ['web','http','sql injection','xss','burp','injection','api','medium',
-               'bazaar','network traffic','packet','scapy'] },
-        { cat: 'misc',     cls: 'ctf-cat-misc',
-          kw: ['training','lecture','awareness','education','event','workshop','teaching',
-               'degree','university','certification','comptia','ai','automation','machine learning'] },
-      ];
-
-      // ── Difficulty keyword map ────────────────────────────────
-      const DIFF_RULES = [
-        { diff: 'HARD',   cls: 'ctf-diff-hard',
-          kw: ['advanced','enterprise','critical','autonomous','ai','framework',
-               'metasploit','exploit','malware','penetration','shellcode','bypass',
-               'wireshark','autopsy','ftk','encase','rce','privilege'] },
-        { diff: 'MEDIUM', cls: 'ctf-diff-medium',
-          kw: ['vapt','assessment','scan','vulnerability','nmap','nessus','burp',
-               'forensics','incident','analysis','detection','monitor','blackice'] },
-      ];
-
-      // Points pool varies by category
-      const PTS_BY_CAT = { pwn: [500,400,450], forensics: [350,400,300], crypto: [300,350], web: [250,300,200], misc: [100,150,200] };
-      let cardSeq = 0;
-
-      function inferCategory(text) {
-        const t = text.toLowerCase();
-        for (const rule of CAT_RULES) {
-          if (rule.kw.some(k => t.includes(k))) return rule;
-        }
-        return { cat: 'misc', cls: 'ctf-cat-misc' };
-      }
-
-      function inferDifficulty(text) {
-        const t = text.toLowerCase();
-        for (const rule of DIFF_RULES) {
-          if (rule.kw.some(k => t.includes(k))) return rule;
-        }
-        return { diff: 'EASY', cls: 'ctf-diff-easy' };
-      }
-
-      function pickPts(cat) {
-        const pool = PTS_BY_CAT[cat] || [200];
-        return pool[cardSeq % pool.length];
-      }
-
-      function makeSolveToggle() {
-        const btn = document.createElement('span');
-        btn.className = 'ctf-solve-toggle';
-        btn.textContent = '[ UNSOLVED ]';
-        btn.title = 'Click to toggle solved state';
-        btn.addEventListener('click', function (e) {
-          e.stopPropagation();
-          const solved = this.classList.toggle('solved');
-          this.classList.add('solving');
-          this.textContent = solved ? '[ SOLVED ]' : '[ UNSOLVED ]';
-          setTimeout(() => this.classList.remove('solving'), 400);
-        });
-        return btn;
-      }
-
-      function decorateCards() {
-        // All card-like elements across every page
-        const cards = document.querySelectorAll(
-          '#root button.text-left, ' +
-          '#root div[class*="rounded-lg"], ' +
-          '#root div[class*="rounded-xl"], ' +
-          '#root a[class*="rounded-lg"], ' +
-          '#root a[class*="rounded-xl"]'
-        );
-
-        cards.forEach(card => {
-          if (card.dataset.ctfDone) return;
-          card.dataset.ctfDone = '1';
-          card.classList.add('ctf-challenge-card');
-
-          // Collect readable text from this card for keyword analysis
-          const text = card.innerText || card.textContent || '';
-
-          const catInfo  = inferCategory(text);
-          const diffInfo = inferDifficulty(text);
-          const pts      = pickPts(catInfo.cat);
-          cardSeq++;
-
-          // ── Top-right meta block (category + difficulty) ──
-          const meta = document.createElement('div');
-          meta.className = 'ctf-card-meta';
-
-          const catBadge = document.createElement('span');
-          catBadge.className = 'ctf-cat-badge ' + catInfo.cls;
-          catBadge.textContent = catInfo.cat;
-          meta.appendChild(catBadge);
-
-          const diffBadge = document.createElement('span');
-          diffBadge.className = 'ctf-diff-badge ' + diffInfo.cls;
-          diffBadge.textContent = 'difficulty: ' + diffInfo.diff;
-          meta.appendChild(diffBadge);
-
-          card.appendChild(meta);
-
-          // ── Bottom-left pts ───────────────────────────────
-          const ptsLabel = document.createElement('span');
-          ptsLabel.className = 'ctf-pts-label';
-          ptsLabel.textContent = 'points: ' + pts;
-          card.appendChild(ptsLabel);
-
-          // ── Bottom-right UNSOLVED toggle ──────────────────
-          card.appendChild(makeSolveToggle());
-        });
-
-        // Blinking cursor on h1 (hero name)
-        document.querySelectorAll('#root h1').forEach(h1 => {
-          if (!h1.dataset.ctfCursor) {
-            h1.dataset.ctfCursor = '1';
-            h1.classList.add('ctf-cursor');
-          }
-        });
-      }
-
-      // Re-run whenever React re-renders a page
-      const observer = new MutationObserver(decorateCards);
-      observer.observe(document.getElementById('root'), { childList: true, subtree: true });
-      setTimeout(decorateCards, 800);
-
-      /* ─────────────────────────────────────────────────────────
-         C. BOOT SCREEN  (session-once)
-      ───────────────────────────────────────────────────────── */
-      const bootEl   = document.getElementById('ctf-boot-screen');
-      const linesEl  = document.getElementById('ctf-boot-lines');
-      const cursorEl = document.getElementById('ctf-boot-cursor');
-
-      const BOOT_LINES = [
-        { text: '[SYSTEM BOOT] MALWORLD OS v2.0', ok: false },
-        { text: '[OK] Loading exploit modules...',   ok: true  },
-        { text: '[OK] Initializing recon engine...', ok: true  },
-        { text: '[OK] CTF toolkit ready',            ok: true  },
-        { text: '[OK] Payload builder armed',        ok: true  },
-        { text: 'ACCESS GRANTED — Welcome, operator.', ok: false },
-      ];
-
-      const CHAR_DELAY = 80;   // ms per character
-      const POST_PAUSE = 1200; // ms after last line before fade
-
-      function alreadyShown() {
-        try { return sessionStorage.getItem('ctf-boot-shown') === '1'; } catch(e) { return false; }
-      }
-      function markShown() {
-        try { sessionStorage.setItem('ctf-boot-shown', '1'); } catch(e) {}
-      }
-
-      function typeLines(lines, onDone) {
-        let lineIdx = 0, charIdx = 0, lineSpan = null;
-
-        function next() {
-          if (lineIdx >= lines.length) { onDone(); return; }
-
-          const line = lines[lineIdx];
-
-          if (charIdx === 0) {
-            lineSpan = document.createElement('span');
-            lineSpan.className = 'boot-line';
-            linesEl.appendChild(lineSpan);
-          }
-
-          const fullText = line.text;
-          const ch = fullText[charIdx];
-
-          // If this line has [OK] prefix, colour it
-          if (line.ok && charIdx < 4) {
-            // append to an inner .ok span
-            let okSpan = lineSpan.querySelector('.ok');
-            if (!okSpan) {
-              okSpan = document.createElement('span');
-              okSpan.className = 'ok';
-              lineSpan.appendChild(okSpan);
-            }
-            okSpan.textContent += ch;
-          } else {
-            // plain text node at end of lineSpan
-            let textNode = lineSpan.lastChild;
-            if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
-              textNode = document.createTextNode('');
-              lineSpan.appendChild(textNode);
-            }
-            textNode.textContent += ch;
-          }
-
-          charIdx++;
-          if (charIdx >= fullText.length) {
-            lineSpan.textContent; // flush
-            lineIdx++;
-            charIdx = 0;
-            setTimeout(next, CHAR_DELAY * 2); // tiny pause between lines
-          } else {
-            setTimeout(next, CHAR_DELAY);
-          }
-        }
-
-        next();
-      }
-
-      function runBoot() {
-        if (alreadyShown()) {
-          bootEl.style.display = 'none';
-          return;
-        }
-
-        typeLines(BOOT_LINES, () => {
-          cursorEl.style.display = 'none';
-          markShown();
-          setTimeout(() => {
-            bootEl.classList.add('ctf-fade-out');
-            bootEl.addEventListener('transitionend', () => {
-              bootEl.style.display = 'none';
-            }, { once: true });
-          }, POST_PAUSE);
-        });
-      }
-
-      // Wait for DOM to be fully ready
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', runBoot);
+      nextChar();
+    }
+    nextLine();
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     COMMAND HISTORY
+  ══════════════════════════════════════════════════════════════ */
+  const history = [];
+  let histIdx   = -1;
+
+  /* ══════════════════════════════════════════════════════════════
+     ALL COMMANDS
+  ══════════════════════════════════════════════════════════════ */
+  const COMMANDS = ['help','about','skills','projects','experience','education','tools','social','contact','whoami','ls','clear','exit'];
+
+  function cmdHelp() {
+    printBlank();
+    println('c-cyan bold', '╔══════════════════════════════════════════════════════╗');
+    println('c-cyan bold', '║         MALWORLD — COMMAND REFERENCE TABLE           ║');
+    println('c-cyan bold', '╚══════════════════════════════════════════════════════╝');
+    printBlank();
+    const rows = [
+      ['help',       'Display this command reference'],
+      ['whoami',     'Dump current operator identity & privileges'],
+      ['ls',         'Enumerate filesystem — list accessible directories'],
+      ['about',      'Run nmap banner grab on target: MAL'],
+      ['skills',     'Load capability modules into payload builder'],
+      ['projects',   'Enumerate active operations / deployed sessions'],
+      ['experience', 'Intercept and replay career timeline packets'],
+      ['education',  'Map kernel module — load education.dll into memory'],
+      ['tools',      'List botnet arsenal — weaponized tool inventory'],
+      ['social',     'OSINT recon dump — exfiltrate social accounts'],
+      ['contact',    'Establish encrypted comms channel to operator'],
+      ['clear',      'Wipe terminal buffer — destroy evidence'],
+      ['exit',       'Terminate session — close Meterpreter channel'],
+    ];
+    rows.forEach(([cmd, desc]) => {
+      const row = document.createElement('div');
+      row.className = 'help-row';
+      const c = document.createElement('span');
+      c.className = 'help-cmd';
+      c.textContent = cmd;
+      const d = document.createElement('span');
+      d.className = 'help-desc';
+      d.textContent = '— ' + desc;
+      row.appendChild(c);
+      row.appendChild(d);
+      print(row);
+    });
+    printBlank();
+    println('c-dim', '[ Tab to autocomplete · ↑↓ to navigate history ]');
+    printBlank();
+  }
+
+  function cmdWhoami() {
+    printBlank();
+    println('c-green bold', 'malworld\\mal-operator');
+    printBlank();
+    println('c-cyan',  'Privileges:');
+    println('c-yellow','  SeDebugPrivilege          [ENABLED]');
+    println('c-yellow','  SeImpersonatePrivilege    [ENABLED]');
+    println('c-yellow','  SeTakeOwnershipPrivilege  [ENABLED]');
+    println('c-yellow','  SeShutdownPrivilege       [ENABLED]');
+    printBlank();
+    println('c-dim',   'User SID   : S-1-5-21-3457823498-1337-4444-500');
+    println('c-dim',   'Logon time : ' + new Date().toISOString().replace('T',' ').slice(0,19));
+    printBlank();
+  }
+
+  function cmdLs() {
+    printBlank();
+    println('c-dim', ' Directory of C:\\Users\\victim');
+    printBlank();
+    const pad = (s, n) => s + ' '.repeat(Math.max(0, n - s.length));
+    const now = new Date();
+    const d   = now.toLocaleDateString('en-GB').replace(/\//g,'/');
+    const t   = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+
+    const items = [
+      { date:d, time:t, type:'<DIR>', name:'about',      size:''},
+      { date:d, time:t, type:'<DIR>', name:'projects',   size:''},
+      { date:d, time:t, type:'<DIR>', name:'experience', size:''},
+      { date:d, time:t, type:'<DIR>', name:'education',  size:''},
+      { date:d, time:t, type:'<DIR>', name:'tools',      size:''},
+      { date:d, time:t, type:'<DIR>', name:'social',     size:''},
+      { date:d, time:t, type:'',      name:'contact.enc',size:'  4,096'},
+      { date:d, time:t, type:'',      name:'README.md',  size:'  2,041'},
+      { date:d, time:t, type:'',      name:'payload.py', size:'  8,192'},
+    ];
+
+    items.forEach(item => {
+      const line = `${pad(item.date,10)}  ${pad(item.time,5)}    ${pad(item.type,5)}  ${pad(item.size,10)}  ${item.name}`;
+      if (item.type === '<DIR>') {
+        const el = span('c-cyan', line);
+        print(el);
       } else {
-        runBoot();
+        println('', line);
+      }
+    });
+
+    printBlank();
+    println('c-dim', `               3 Dir(s)     6 File(s)`);
+    println('c-dim', `              48,291,840 bytes free`);
+    printBlank();
+  }
+
+  function cmdAbout() {
+    printBlank();
+    println('c-yellow', '[*] Starting Nmap 7.94SVN ( https://nmap.org )');
+    println('c-dim',    '[*] Scanning target: MAL (10.13.37.1)');
+    println('c-dim',    '[*] Host is up (0.0014s latency).');
+    printBlank();
+    println('c-cyan bold', 'PORT      STATE  SERVICE    VERSION');
+    println('c-dim',       '────────────────────────────────────────────────────────────────');
+
+    const ports = [
+      { port:'22/tcp  ', svc:'identity ', ver:'Mal | Mr. Malman' },
+      { port:'80/tcp  ', svc:'role     ', ver:'Cybersecurity Researcher & Developer' },
+      { port:'443/tcp ', svc:'focus    ', ver:'Threat Detection · AI Security · Malware Analysis' },
+      { port:'1337/tcp', svc:'specialty', ver:'Penetration Testing · VAPT · Digital Forensics' },
+      { port:'8080/tcp', svc:'status   ', ver:'Available for collaboration & research' },
+      { port:'9000/tcp', svc:'location ', ver:'Noida, India (Remote-ready)' },
+    ];
+
+    ports.forEach(p => {
+      printRaw(
+        `<span class="c-green">${p.port}</span>  ` +
+        `<span class="c-green">open</span>   ` +
+        `<span class="c-cyan">${p.svc}</span>  ` +
+        `<span>${p.ver}</span>`
+      );
+    });
+
+    printBlank();
+    println('c-dim', '────────────────────────────────────────────────────────────────');
+    println('c-yellow', '[INFO] Host is UP. Operator profile fully loaded.');
+    println('c-yellow', '[INFO] OS detected: CyberSec/Research [Linux kernel + offensive mindset]');
+    printBlank();
+    println('c-green',  '[BIO] I am a Cybersecurity Specialist and Digital Forensics Investigator');
+    println('',          '      bridging the gap between offensive security and advanced threat');
+    println('',          '      detection. Currently pursuing M.Sc. in Cyber Forensic & Cyber');
+    println('',          '      Security, combining academic rigor with practical field experience.');
+    printBlank();
+    println('c-green',  '[BIO] Background ranges from Junior Cyber Crime Investigator (Autopsy,');
+    println('',          '      EnCase forensics) to high-level VAPT for enterprise networks');
+    println('',          '      (Burp Suite, Metasploit). Passionate about AI × Security.');
+    printBlank();
+    println('c-green',  '[BIO] Currently developing BlackIce AI — autonomous penetration testing');
+    println('',          '      framework. Whether reverse engineering malware, automating defenses');
+    println('',          '      with Python and Nim, or training the next generation of defenders.');
+    printBlank();
+    println('c-yellow', '[INFO] "Building defenses by understanding the offense."');
+    println('c-dim',    '[INFO] "I am the firewall to my own success."');
+    printBlank();
+  }
+
+  function cmdSkills() {
+    printBlank();
+    println('c-yellow', '[*] Connecting to C2 server at 10.13.37.1:4444...');
+    println('c-green',  '[+] Session established. Loading capability modules...');
+    printBlank();
+
+    const modules = [
+      { name:'python.exe         ', pct: 88, bars: 18 },
+      { name:'threat_detection   ', pct: 85, bars: 17 },
+      { name:'network_security   ', pct: 88, bars: 18 },
+      { name:'machine_learning   ', pct: 82, bars: 16 },
+      { name:'bash_linux         ', pct: 87, bars: 17 },
+      { name:'digital_forensics  ', pct: 90, bars: 18 },
+      { name:'penetration_testing', pct: 92, bars: 19 },
+      { name:'reverse_engineering', pct: 70, bars: 14 },
+      { name:'web_exploitation   ', pct: 75, bars: 15 },
+      { name:'incident_response  ', pct: 80, bars: 16 },
+      { name:'malware_analysis   ', pct: 83, bars: 17 },
+    ];
+
+    const TOTAL = 20;
+    modules.forEach(m => {
+      const filled = '█'.repeat(m.bars);
+      const empty  = '░'.repeat(TOTAL - m.bars);
+      printRaw(
+        `<span class="c-yellow">[MODULE]</span> ` +
+        `<span class="c-cyan">${m.name}</span> ` +
+        `<span class="c-green">${filled}</span>` +
+        `<span class="c-dim">${empty}</span>` +
+        `  <span class="c-yellow">${m.pct}%</span>` +
+        `  <span class="c-green bold">ACTIVE</span>`
+      );
+    });
+
+    printBlank();
+    println('c-green bold', '[*] All modules armed. Payload builder ready.');
+    println('c-yellow',     '[*] C2 connection persistent — keep-alive: 60s');
+    printBlank();
+  }
+
+  function cmdProjects() {
+    printBlank();
+    println('c-yellow', '[*] Querying active operations database...');
+    println('c-yellow', '[*] Enumerating deployed sessions...');
+    printBlank();
+
+    const projects = [
+      {
+        id: '001', name: 'BLACKICE AI MCP AGENTS v4.0',
+        status: 'DEPLOYED', type: 'AI-Powered Autonomous Penetration Testing Framework',
+        stack: 'Python · LLMs · MCP Protocol · 150+ Security Tools',
+        threat: 'CRITICAL', tlevel: 'Autonomous agents with intelligent decision engine',
+        link: 'github.com/Mr-Malman/BLACKICE'
+      },
+      {
+        id: '002', name: 'BADNET v1',
+        status: 'DEPLOYED', type: 'AI-Powered Cyber Attack Detection & Prediction System',
+        stack: 'Python · Scikit-learn · Pandas · Random Forest · Flask',
+        threat: 'HIGH', tlevel: 'Real-time ML classification: DoS · Probe · R2L · U2R',
+        link: 'github.com/Mr-Malman/BADNET'
+      },
+      {
+        id: '003', name: 'HONEYPOT NETWORK',
+        status: 'ACTIVE', type: 'Multi-Protocol Deception & Threat Intelligence System',
+        stack: 'Python · SSH · FTP · DNS · Real-time IP blacklisting',
+        threat: 'MEDIUM', tlevel: 'Detect, log and analyze unauthorized access attempts',
+        link: 'github.com/Mr-Malman/honeypot'
+      },
+      {
+        id: '004', name: 'NIMHUNTER',
+        status: 'RESEARCH', type: 'Nim-Language Malware Detection & Transpilation Analysis',
+        stack: 'Python · YARA · Machine Learning · Static Analysis',
+        threat: 'HIGH', tlevel: 'Transpilation signatures · polymorphic malware detection',
+        link: 'github.com/Mr-Malman/NimHunter'
+      },
+      {
+        id: '005', name: 'MALWORLD PORTFOLIO',
+        status: 'LIVE', type: 'Cybersecurity Portfolio — CTF Theme',
+        stack: 'React · Vite · Framer Motion · Tailwind · GitHub Pages',
+        threat: 'LOW', tlevel: 'Interactive terminal-themed portfolio site',
+        link: 'mr-malman.github.io/Malworld'
+      },
+    ];
+
+    const div = (col) => { println(col, '═══════════════════════════════════════════════════════════'); };
+    const sep = (col) => { println(col, '───────────────────────────────────────────────────────────'); };
+
+    projects.forEach(p => {
+      const tcol = p.threat === 'CRITICAL' ? 'c-red' : p.threat === 'HIGH' ? 'c-yellow' : p.threat === 'MEDIUM' ? 'c-cyan' : 'c-green';
+      div('c-green');
+      println('c-cyan bold', `SESSION #${p.id} — ${p.name}`);
+      sep('c-dim');
+      printRaw(`<span class="c-dim">STATUS   :</span> <span class="c-green bold">${p.status}</span>`);
+      printRaw(`<span class="c-dim">TYPE     :</span> ${p.type}`);
+      printRaw(`<span class="c-dim">STACK    :</span> <span class="c-cyan">${p.stack}</span>`);
+      printRaw(`<span class="c-dim">THREAT   :</span> [<span class="${tcol}">${p.threat}</span>] ${p.tlevel}`);
+      printRaw(`<span class="c-dim">LINK     :</span> <span class="c-cyan">${p.link}</span>`);
+    });
+
+    div('c-green');
+    printBlank();
+    println('c-yellow', `[*] ${projects.length} active operations enumerated.`);
+    printBlank();
+  }
+
+  function cmdExperience() {
+    printBlank();
+    println('c-yellow', '[*] Intercepting timeline packets from target: MAL...');
+    println('c-yellow', '[*] MITM attack successful. Decrypting payload...');
+    println('c-dim',    '──────────────────────────────────────────────────────────────');
+    printBlank();
+
+    const jobs = [
+      {
+        year: '2024→NOW', src: 'MRGS Infoway → Remote',
+        role: 'Cyber Security Instructor',
+        payload: 'Cyber Vahini Project — training female students in cybersecurity, VAPT, digital security',
+        duration: '3 months · encrypted comms'
+      },
+      {
+        year: '2024→NOW', src: 'Warsharks → Remote',
+        role: 'Penetration Tester (Part-Time)',
+        payload: 'Vulnerability assessments, exploiting security flaws, remediation reports',
+        duration: 'Ongoing · active session'
+      },
+      {
+        year: '2023',     src: 'Hacktify Cyber Security → Remote',
+        role: 'VAPT Tester',
+        payload: 'Enterprise network pentesting — Burp Suite, Nmap, Metasploit: critical vuln identification',
+        duration: 'Undisclosed · high-value target'
+      },
+      {
+        year: '2021-22',  src: 'India Cyber Security Solutions → Kolkata',
+        role: 'VAPT Intern',
+        payload: 'Network vulnerability assessments, pentesting — Nmap, Nessus, Burp Suite, Metasploit',
+        duration: 'July 2021 – May 2022 · 10 months'
+      },
+      {
+        year: '2022-23',  src: 'Sister Nivedita University → Kolkata',
+        role: 'Guest Lecturer',
+        payload: 'Digital Forensics & Cybersecurity — threat analysis, forensic investigation techniques',
+        duration: 'June 2022 – Sep 2023'
+      },
+      {
+        year: '2023',     src: 'EDCI → Kolkata (Onsite)',
+        role: 'Junior Cyber Crime Investigator',
+        payload: 'Digital forensics & incident response — Autopsy, FTK, EnCase, Wireshark deep analysis',
+        duration: 'Undisclosed · classified assignment'
+      },
+      {
+        year: '2024',     src: 'Behala Govt Polytechnic → Kolkata',
+        role: 'Guest Lecturer',
+        payload: 'Networking and VAPT — cybersecurity concepts and pentesting methodologies',
+        duration: 'Undisclosed'
+      },
+    ];
+
+    jobs.forEach((job, i) => {
+      printRaw(
+        `<span class="c-yellow">[${job.year}]</span> ` +
+        `<span class="c-dim">SRC:</span> <span class="c-cyan">${job.src}</span>`
+      );
+      printRaw(
+        `         <span class="c-dim">ROLE   :</span> <span class="c-green bold">${job.role}</span>`
+      );
+      println('',
+        `         PAYLOAD: ${job.payload}`
+      );
+      printRaw(
+        `         <span class="c-dim">BYTES  :</span> <span class="c-magenta">${job.duration}</span>`
+      );
+      if (i < jobs.length - 1) {
+        println('c-dim', '         · · ·');
+      }
+      printBlank();
+    });
+
+    println('c-dim',    '──────────────────────────────────────────────────────────────');
+    println('c-yellow', `[*] ${jobs.length} timeline packets intercepted and decrypted.`);
+    printBlank();
+  }
+
+  function cmdEducation() {
+    printBlank();
+    println('c-yellow', '[*] Initializing Windows kernel module loader...');
+    println('c-yellow', '[*] Resolving imports from education.dll...');
+    printBlank();
+    println('c-dim',    '──────────────────────────────────────────────────────────────');
+
+    const edu = [
+      {
+        dll: 'AmityUniversity_Noida.dll',
+        funcs: [
+          { fn: 'GetProcAddress("MSc_CyberForensic_CyberSecurity")', addr: '0x7FFE4821' },
+          { fn: 'GetProcAddress("Duration_2024_to_Present")',        addr: '0x7FFE4822' },
+          { fn: 'GetProcAddress("CGPA_8.41")',                       addr: '0x7FFE4823' },
+        ],
+        imports: 'Digital Forensics · Network Security · Cryptography · OS Internals · AI/ML',
+      },
+      {
+        dll: 'SupremeKnowledgeFoundation.dll',
+        funcs: [
+          { fn: 'GetProcAddress("BSc_ComputerScience")',    addr: '0x7FFE1001' },
+          { fn: 'GetProcAddress("Duration_2020_to_2023")',  addr: '0x7FFE1002' },
+          { fn: 'GetProcAddress("CGPA_8.86")',              addr: '0x7FFE1003' },
+        ],
+        imports: 'Algorithms · Data Structures · Networking · Mathematics · Software Dev',
+      },
+    ];
+
+    edu.forEach((e, i) => {
+      printRaw(`<span class="c-cyan">LoadLibrary(<span class="c-green">"${e.dll}"</span>)</span>  →  <span class="c-green">SUCCESS</span>`);
+      e.funcs.forEach(f => {
+        printRaw(
+          `  <span class="c-yellow">${f.fn}</span>` +
+          `  →  <span class="c-magenta">${f.addr}</span>`
+        );
+      });
+      printRaw(`  <span class="c-dim">ImportTable:</span> <span class="c-cyan">${e.imports}</span>`);
+      if (i < edu.length - 1) printBlank();
+    });
+
+    printBlank();
+    println('c-dim',    '──────────────────────────────────────────────────────────────');
+    println('c-yellow', '[*] Scanning for certifications...');
+    printBlank();
+
+    const certs = [
+      'CompTIA Security+     [VERIFIED] credly.com/badges/97e48515',
+      'CompTIA Network+      [VERIFIED] credly.com/badges/0dfc0950',
+      'CEH v13 AI            [VERIFIED] EC-Council Certified Ethical Hacker',
+    ];
+    certs.forEach(c => {
+      printRaw(`  <span class="c-green">[OK]</span> <span>${c}</span>`);
+    });
+
+    printBlank();
+    println('c-green bold', '[OK] Education module fully mapped into process memory.');
+    println('c-dim',        '[*] Base address: 0x00400000 | Size: 2 degrees + 3 certifications');
+    printBlank();
+  }
+
+  function cmdTools() {
+    printBlank();
+    println('c-yellow', '[*] Querying botnet C2 — arming arsenal...');
+    println('c-yellow', '[*] Syncing tool registry from zombie nodes...');
+    printBlank();
+
+    const tools = [
+      { name:'Metasploit   ', cat:'Exploitation  ', status:'LOADED' },
+      { name:'Burp Suite   ', cat:'Web Attack    ', status:'LOADED' },
+      { name:'Wireshark    ', cat:'Recon/Analysis', status:'LOADED' },
+      { name:'Nmap         ', cat:'Enumeration   ', status:'LOADED' },
+      { name:'Nessus       ', cat:'Vuln Scanning ', status:'LOADED' },
+      { name:'Python       ', cat:'Scripting/Dev ', status:'LOADED' },
+      { name:'Bash/Linux   ', cat:'Automation    ', status:'LOADED' },
+      { name:'Ghidra       ', cat:'Reversing     ', status:'LOADED' },
+      { name:'Autopsy      ', cat:'Forensics     ', status:'LOADED' },
+      { name:'FTK          ', cat:'Forensics     ', status:'LOADED' },
+      { name:'EnCase       ', cat:'Forensics     ', status:'LOADED' },
+      { name:'Scapy        ', cat:'Packet Craft  ', status:'LOADED' },
+      { name:'Aircrack-ng  ', cat:'Wireless      ', status:'LOADED' },
+      { name:'Hashcat      ', cat:'Cracking      ', status:'LOADED' },
+      { name:'John the Rip ', cat:'Cracking      ', status:'LOADED' },
+      { name:'SQLMap       ', cat:'SQL Injection  ', status:'LOADED' },
+      { name:'Mimikatz     ', cat:'Credential Dmp', status:'LOADED' },
+    ];
+
+    // Header
+    println('c-dim', '┌──────────────────┬──────────────────┬────────────┐');
+    printRaw(
+      '│ <span class="c-cyan tbl-head">TOOL            </span> │ ' +
+      '<span class="c-cyan tbl-head">CATEGORY        </span> │ ' +
+      '<span class="c-cyan tbl-head">STATUS    </span> │'
+    );
+    println('c-dim', '├──────────────────┼──────────────────┼────────────┤');
+
+    tools.forEach(t => {
+      printRaw(
+        `│ <span class="c-green">${t.name}</span> │ ` +
+        `${t.cat} │ ` +
+        `<span class="c-green bold">${t.status}  </span> │`
+      );
+    });
+
+    println('c-dim', '└──────────────────┴──────────────────┴────────────┘');
+    printBlank();
+    println('c-green', `[+] ${tools.length} weapons loaded. Arsenal fully operational.`);
+    println('c-yellow', '[*] All tools synced across botnet nodes.');
+    printBlank();
+  }
+
+  function cmdSocial() {
+    printBlank();
+    println('c-yellow', '[*] Launching OSINT scan on target: Mal (Mr. Malman)...');
+    println('c-yellow', '[*] Using theHarvester + Maltego correlation engine...');
+    printBlank();
+
+    const sources = [
+      { source:'GitHub',         q:'Querying source code repositories...',  hit:'+', val:'github.com/Mr-Malman',                       note: '12+ repos · Python · Security tools' },
+      { source:'LinkedIn',       q:'Querying professional network...',      hit:'+', val:'linkedin.com/in/hackarya007',               note: 'Cybersecurity Researcher profile' },
+      { source:'Twitter/X',      q:'Querying social media...',              hit:'+', val:'x.com/mr_malman',                           note: 'Active · Security content' },
+      { source:'YouTube',        q:'Querying video platform...',            hit:'+', val:'youtube.com/@Mr-Malman',                    note: 'Security tutorials & walkthroughs' },
+      { source:'Medium',         q:'Querying blog platform...',             hit:'+', val:'mr-malman.medium.com',                      note: 'Research articles & deep dives' },
+      { source:'Portfolio',      q:'Querying personal site...',             hit:'+', val:'mr-malman.github.io/Malworld',              note: 'CTF-themed cybersecurity portfolio' },
+      { source:'MalwareBazaar',  q:'Querying threat intel platform...',     hit:'+', val:'bazaar.abuse.ch/user/31425',               note: 'Malware samples & threat intel' },
+      { source:'Credly',         q:'Querying certification registry...',    hit:'+', val:'credly.com/users/Mr-Malman',               note: 'Verified: Security+ · Network+ · CEH' },
+    ];
+
+    sources.forEach(s => {
+      println('c-yellow', `[*] Querying ${s.source}... ${s.q}`);
+      printRaw(
+        `<span class="c-green">[${s.hit}]</span> ` +
+        `<span class="c-cyan">${s.val}</span>  ` +
+        `<span class="c-dim">// ${s.note}</span>`
+      );
+    });
+
+    printBlank();
+    println('c-dim',    '──────────────────────────────────────────────────────────────');
+    println('c-yellow', `[*] Scan complete. ${sources.length} accounts enumerated & exfiltrated.`);
+    println('c-green',  '[+] OSINT profile compiled. Target has significant digital footprint.');
+    printBlank();
+  }
+
+  function cmdContact() {
+    printBlank();
+    println('c-yellow', '[*] Establishing encrypted comms tunnel to operator...');
+    println('c-yellow', '[*] Negotiating TLS 1.3 handshake...');
+    println('c-cyan',   '[*] Generating ephemeral ECDH keypair...');
+    println('c-green',  '[OK] AES-256-GCM session key derived.');
+    println('c-green',  '[OK] Encrypted tunnel established. 3 hops: TOR → VPN → proxy.');
+    printBlank();
+    println('c-dim',    '-----BEGIN ENCRYPTED MESSAGE-----');
+    println('c-dim',    'QWxnb3JpdGhtOiBBRVMtMjU2LUdDTQpLZXkgZGVyaXZhdGlvbjogRUNESAo=');
+    printBlank();
+    println('',          'To reach the operator:');
+    printBlank();
+    printRaw(`  <span class="c-cyan">GitHub   :</span> <span class="c-green">github.com/Mr-Malman</span>`);
+    printRaw(`  <span class="c-cyan">LinkedIn :</span> <span class="c-green">linkedin.com/in/hackarya007</span>`);
+    printRaw(`  <span class="c-cyan">Twitter  :</span> <span class="c-green">x.com/mr_malman</span>`);
+    printRaw(`  <span class="c-cyan">Medium   :</span> <span class="c-green">mr-malman.medium.com</span>`);
+    printRaw(`  <span class="c-cyan">Portfolio:</span> <span class="c-green">mr-malman.github.io/Malworld</span>`);
+    printRaw(`  <span class="c-cyan">YouTube  :</span> <span class="c-green">youtube.com/@Mr-Malman</span>`);
+    printBlank();
+    println('c-dim',    '-----END ENCRYPTED MESSAGE-----');
+    printBlank();
+    println('c-yellow', '[*] Message routed through 3 proxies. Untraceable.');
+    println('c-dim',    '[*] Session will self-destruct in 60 seconds. (jk)');
+    printBlank();
+  }
+
+  function cmdClear() {
+    output.innerHTML = '';
+    // Print minimal prompt context after clear
+    println('c-dim', '[terminal buffer wiped — evidence destroyed]');
+    printBlank();
+  }
+
+  let exited = false;
+  function cmdExit() {
+    printBlank();
+    println('c-yellow', '[*] Closing Meterpreter session 1...');
+    setTimeout(() => {
+      println('c-red bold', '[!] Connection terminated.');
+      println('c-red',      '[!] Session ended by operator. Cleaning tracks...');
+      setTimeout(() => {
+        println('c-dim', '[*] Clearing event logs...');
+        println('c-dim', '[*] Wiping bash_history...');
+        println('c-dim', '[*] Removing temp files...');
+        setTimeout(() => {
+          println('c-green', '[OK] Forensic cleanup complete. Stay ghost. 👻');
+          input.disabled = true;
+          input.placeholder = '[ session closed ]';
+          exited = true;
+          document.getElementById('prompt-label').style.opacity = '0.3';
+        }, 800);
+      }, 600);
+    }, 500);
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     COMMAND ROUTER
+  ══════════════════════════════════════════════════════════════ */
+  function runCommand(raw) {
+    const cmd = raw.trim().toLowerCase();
+    if (!cmd) return;
+
+    // Echo the typed command
+    if (cmd !== '__boot__') {
+      const echo = document.createElement('span');
+      echo.className = 'cmd-echo line';
+      echo.textContent = raw.trim();
+      print(echo);
+    }
+
+    switch (cmd) {
+      case 'help':       cmdHelp();       break;
+      case 'whoami':     cmdWhoami();     break;
+      case 'ls':
+      case 'dir':        cmdLs();         break;
+      case 'about':      cmdAbout();      break;
+      case 'skills':     cmdSkills();     break;
+      case 'projects':   cmdProjects();   break;
+      case 'experience': cmdExperience(); break;
+      case 'education':  cmdEducation();  break;
+      case 'tools':      cmdTools();      break;
+      case 'social':     cmdSocial();     break;
+      case 'contact':    cmdContact();    break;
+      case 'clear':      cmdClear();      break;
+      case 'exit':       cmdExit();       break;
+      default:
+        printBlank();
+        println('c-red', `'${raw.trim()}' is not recognized as an internal or external command,`);
+        println('c-red', `operable program or batch file.`);
+        println('c-dim', `Type 'help' to see available commands.`);
+        printBlank();
+    }
+    output.scrollTop = output.scrollHeight;
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     INPUT HANDLING
+  ══════════════════════════════════════════════════════════════ */
+  input.addEventListener('keydown', e => {
+    if (exited) return;
+
+    if (e.key === 'Enter') {
+      const val = input.value;
+      if (val.trim()) {
+        history.unshift(val);
+        histIdx = -1;
+      }
+      input.value = '';
+      runCommand(val);
+
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (histIdx < history.length - 1) {
+        histIdx++;
+        input.value = history[histIdx];
+        setTimeout(() => input.setSelectionRange(input.value.length, input.value.length), 0);
       }
 
-    })();
-    </script>
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (histIdx > 0) {
+        histIdx--;
+        input.value = history[histIdx];
+      } else {
+        histIdx = -1;
+        input.value = '';
+      }
 
-  </body>
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      const partial = input.value.trim().toLowerCase();
+      if (!partial) return;
+      const match = COMMANDS.find(c => c.startsWith(partial));
+      if (match) input.value = match;
+
+    } else if (e.key === 'l' && e.ctrlKey) {
+      e.preventDefault();
+      cmdClear();
+
+    } else if (e.key === 'c' && e.ctrlKey) {
+      e.preventDefault();
+      const el = span('c-red', '^C');
+      print(el);
+      printBlank();
+      input.value = '';
+    }
+  });
+
+  // Click anywhere → focus input
+  wrapEl.addEventListener('click', () => {
+    if (!window.getSelection().toString()) input.focus();
+  });
+
+  /* ══════════════════════════════════════════════════════════════
+     BOOT SEQUENCE
+  ══════════════════════════════════════════════════════════════ */
+  input.disabled = true;
+
+  const BOOT_LINES = [
+    { text: 'Microsoft Windows [Version 10.0.19045.4170]', cls: '', delay: 28 },
+    { text: '(c) Microsoft Corporation. All rights reserved.', cls: 'c-dim', delay: 22 },
+    null,
+    { text: 'C:\\Windows\\System32>', cls: 'c-dim', delay: 20 },
+    null,
+    null,
+    { text: '[*] Incoming connection from 192.168.1.47:4444', cls: 'c-yellow', delay: 22 },
+    { text: '[*] Meterpreter session 1 opened (10.0.0.9:8080 -> 192.168.1.47:4444)', cls: 'c-yellow', delay: 18 },
+    null,
+    { text: 'meterpreter > shell', cls: 'c-green', delay: 55 },
+    null,
+    { text: 'Process 4821 created.', cls: 'c-dim', delay: 22 },
+    { text: 'Channel 1 created.', cls: 'c-dim', delay: 22 },
+    null,
+    { text: 'C:\\Windows\\system32> whoami', cls: 'c-green', delay: 55 },
+    { text: 'malworld\\mal-operator', cls: 'c-cyan bold', delay: 22 },
+    null,
+    { text: 'C:\\Windows\\system32> cd C:\\Users\\victim', cls: 'c-green', delay: 45 },
+    null,
+    { text: '╔══════════════════════════════════════════════════════════╗', cls: 'c-green', delay: 6 },
+    { text: '║  ACCESS GRANTED — MALWORLD TERMINAL v2.0                ║', cls: 'c-green bold', delay: 6 },
+    { text: '║  Type \'help\' to begin reconnaissance.                   ║', cls: 'c-green', delay: 6 },
+    { text: '╚══════════════════════════════════════════════════════════╝', cls: 'c-green', delay: 6 },
+    null,
+  ];
+
+  typewrite(BOOT_LINES, 22, 60, () => {
+    input.disabled = false;
+    input.focus();
+  });
+
+})();
+</script>
+</body>
 </html>
