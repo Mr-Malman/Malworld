@@ -10,9 +10,12 @@
         println('c-dim', '[*] Removing temp files...');
         setTimeout(() => {
           println('c-green', '[OK] Forensic cleanup complete. Stay ghost. 👻');
-          input.disabled = true;
-          input.placeholder = '[ session closed ]';
-          exited = true;
+          const input = document.getElementById('cmd-input');
+          if (input) {
+             input.disabled = true;
+             input.placeholder = '[ session closed ]';
+          }
+          window.exited = true;
           document.getElementById('prompt-label').style.opacity = '0.3';
         }, 800);
       }, 600);

@@ -34,6 +34,13 @@
 <!-- TERMINAL WRAPPER -->
 <div id="terminal-wrapper">
   <div id="output"></div>
+  <div id="input-row">
+    <span id="prompt-label">C:\\Users\\victim&gt;&nbsp;</span>
+    <input id="cmd-input" type="text" autocomplete="off" autocorrect="off"
+           autocapitalize="none" spellcheck="false" autofocus
+           aria-label="Terminal input" />
+  </div>
+</div>
 <script>
 
 (function () {
@@ -179,8 +186,7 @@
 
 
 
-  let exited = false;
-
+  window.exited = false;
 
   /* ══════════════════════════════════════════════════════════════
      COMMAND ROUTER
@@ -188,12 +194,13 @@
   
   async function loadCommand(cmdName) {
     try {
+      if (cmdName === 'dir') cmdName = 'ls';
       const response = await fetch(`pages/${cmdName}.js`);
       if (!response.ok) throw new Error('Not found');
       const text = await response.text();
       // create a new function
-      const fn = new Function('printBlank', 'println', 'printRaw', 'output', text + `\nreturn cmd${cmdName.charAt(0).toUpperCase() + cmdName.slice(1)}();`);
-      fn(printBlank, println, printRaw, output);
+      const fn = new Function('printBlank', 'println', 'printRaw', 'print', 'span', 'raw', 'blank', 'output', 'document', 'window', text + `\ntry { return cmd${cmdName.charAt(0).toUpperCase() + cmdName.slice(1)}(); } catch(e) { /* handle aliased names like ls */ return window['cmd' + cmdName.charAt(0).toUpperCase() + cmdName.slice(1)] ? window['cmd' + cmdName.charAt(0).toUpperCase() + cmdName.slice(1)]() : cmdLs(); }`);
+      fn(printBlank, println, printRaw, print, span, raw, blank, output, document, window);
     } catch (e) {
         console.error(e);
         printBlank();
@@ -243,7 +250,7 @@
      INPUT HANDLING
   ══════════════════════════════════════════════════════════════ */
   input.addEventListener('keydown', e => {
-    if (exited) return;
+    if (window.exited) return;
 
     if (e.key === 'Enter') {
       const val = input.value;
