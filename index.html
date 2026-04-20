@@ -8,11 +8,412 @@
       name="description"
       content="Cybersecurity Portfolio for [Your Name]"
     />
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <!-- CTF Theme: JetBrains Mono font -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
     <title>Malworld | Cybersecurity Portfolio</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         CTF THEME OVERLAY + BOOT SCREEN
+         Self-contained block — does not touch any React components.
+         ═══════════════════════════════════════════════════════════ -->
+    <style>
+      /* ── 1. GLOBAL FONT & BASE ───────────────────────────────── */
+      :root {
+        --ctf-green:  #00ff41;
+        --ctf-cyan:   #00d4ff;
+        --ctf-bg:     #0d0d0d;
+        --ctf-card-bg:#0f1923;
+        --ctf-border: rgba(0, 255, 65, 0.35);
+      }
+
+      *, *::before, *::after {
+        font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+      }
+
+      html, body {
+        background-color: var(--ctf-bg) !important;
+        color: #c9d1d9 !important;
+      }
+
+      /* ── 2. CRT SCANLINE OVERLAY ─────────────────────────────── */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 9998;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent 0px,
+          transparent 3px,
+          rgba(0,0,0,0.18) 3px,
+          rgba(0,0,0,0.18) 4px
+        );
+        animation: scanShift 10s linear infinite;
+      }
+
+      @keyframes scanShift {
+        0%   { background-position: 0 0; }
+        100% { background-position: 0 100px; }
+      }
+
+      /* ── 3. MATRIX RAIN CANVAS ───────────────────────────────── */
+      #ctf-matrix-canvas {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.06;
+      }
+
+      /* ── 4. GLITCH ANIMATION ON HEADINGS ─────────────────────── */
+      @keyframes ctfGlitch {
+        0%   { text-shadow: none; clip-path: none; }
+        10%  { text-shadow: 2px 0 var(--ctf-cyan), -2px 0 #ff0055; transform: translate(-2px,0); }
+        20%  { text-shadow: -2px 0 var(--ctf-green), 2px 0 #ff0055; transform: translate(2px,0); }
+        30%  { text-shadow: none; transform: translate(0,0); }
+        100% { text-shadow: none; clip-path: none; }
+      }
+
+      h1:hover, h2:hover, h3:hover {
+        animation: ctfGlitch 0.4s steps(1) !important;
+        cursor: default;
+      }
+
+      /* ── 5. TERMINAL NAV BADGE ────────────────────────────────── */
+      #ctf-nav-badge {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 9000;
+        padding: 6px 14px;
+        font-size: 12px;
+        color: var(--ctf-green);
+        background: rgba(0,0,0,0.7);
+        border-bottom: 1px solid var(--ctf-border);
+        border-right: 1px solid var(--ctf-border);
+        border-bottom-right-radius: 8px;
+        letter-spacing: 0.04em;
+        pointer-events: none;
+        user-select: none;
+      }
+
+      #ctf-nav-badge span.prompt-cyan {
+        color: var(--ctf-cyan);
+      }
+      #ctf-nav-badge span.prompt-blink {
+        animation: ctfBlink 1s step-end infinite;
+        color: var(--ctf-green);
+      }
+
+      /* ── 6. HERO BLINKING CURSOR ──────────────────────────────── */
+      @keyframes ctfBlink {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0; }
+      }
+
+      .ctf-cursor::after {
+        content: '▋';
+        color: var(--ctf-green);
+        animation: ctfBlink 1s step-end infinite;
+        margin-left: 2px;
+      }
+
+      /* ── 7. CTF CARD BORDERS ──────────────────────────────────── */
+      .ctf-challenge-card {
+        position: relative;
+        border-left: 3px solid var(--ctf-green) !important;
+        border-color: var(--ctf-border) !important;
+        background: var(--ctf-card-bg) !important;
+        transition: box-shadow 0.25s ease, border-color 0.25s ease;
+      }
+
+      .ctf-challenge-card:hover {
+        box-shadow: 0 0 18px rgba(0,255,65,0.15), inset 0 0 30px rgba(0,212,255,0.04);
+        border-left-color: var(--ctf-green) !important;
+      }
+
+      .ctf-pts-badge {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--ctf-cyan);
+        background: rgba(0,212,255,0.10);
+        border: 1px solid rgba(0,212,255,0.3);
+        border-radius: 4px;
+        padding: 2px 7px;
+        letter-spacing: 0.06em;
+        pointer-events: none;
+      }
+
+      /* ── 8. XP SKILL BAR ANIMATION ───────────────────────────── */
+      @keyframes xpFill {
+        from { background-position: 200% center; }
+        to   { background-position: -200% center; }
+      }
+
+      [class*="skill"] div[style*="width"],
+      [class*="progress"] > div,
+      [role="progressbar"] > div {
+        background: linear-gradient(90deg,
+          var(--ctf-green) 0%,
+          var(--ctf-cyan)  50%,
+          var(--ctf-green) 100%) !important;
+        background-size: 200% auto !important;
+        animation: xpFill 3s linear infinite !important;
+        box-shadow: 0 0 8px rgba(0,255,65,0.4) !important;
+      }
+
+      /* ── 9. BOOT SCREEN ───────────────────────────────────────── */
+      #ctf-boot-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        background: #0a0a0a;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 10vw;
+        box-sizing: border-box;
+        transition: opacity 0.7s ease;
+      }
+
+      #ctf-boot-screen.ctf-fade-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #ctf-boot-lines {
+        line-height: 2;
+        font-size: clamp(13px, 2vw, 16px);
+        white-space: pre;
+      }
+
+      #ctf-boot-lines .ok {
+        color: var(--ctf-green);
+      }
+
+      #ctf-boot-lines .boot-line {
+        color: #ffffff;
+        display: block;
+      }
+
+      #ctf-boot-cursor {
+        display: inline-block;
+        width: 9px;
+        height: 1.1em;
+        background: var(--ctf-green);
+        vertical-align: text-bottom;
+        animation: ctfBlink 0.7s step-end infinite;
+        margin-left: 2px;
+      }
+    </style>
+
+    <!-- BOOT SCREEN MARKUP -->
+    <div id="ctf-boot-screen">
+      <div id="ctf-boot-lines"></div>
+      <span id="ctf-boot-cursor"></span>
+    </div>
+
+    <!-- TERMINAL NAV BADGE -->
+    <div id="ctf-nav-badge">
+      <span class="prompt-cyan">~/malworld</span> $ <span class="prompt-blink">▋</span>
+    </div>
+
+    <!-- MATRIX RAIN CANVAS -->
+    <canvas id="ctf-matrix-canvas"></canvas>
+
+    <script>
+    (function () {
+      'use strict';
+
+      /* ─────────────────────────────────────────────────────────
+         A. MATRIX RAIN
+      ───────────────────────────────────────────────────────── */
+      const canvas  = document.getElementById('ctf-matrix-canvas');
+      const ctx     = canvas.getContext('2d');
+      const CHARS   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*<>/\\|{}[]アイウエオカキクケコサシスセソ';
+      let cols, drops;
+
+      function resizeMatrix() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        cols  = Math.floor(canvas.width / 16);
+        drops = Array.from({ length: cols }, () => Math.random() * -50);
+      }
+
+      function drawMatrix() {
+        ctx.fillStyle = 'rgba(13,13,13,0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#00ff41';
+        ctx.font = '14px "JetBrains Mono", monospace';
+        drops.forEach((y, i) => {
+          const char = CHARS[Math.floor(Math.random() * CHARS.length)];
+          ctx.fillText(char, i * 16, y * 16);
+          if (y * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+          drops[i] += 0.5;
+        });
+      }
+
+      window.addEventListener('resize', resizeMatrix);
+      resizeMatrix();
+      setInterval(drawMatrix, 55);
+
+      /* ─────────────────────────────────────────────────────────
+         B. CTF CARD DECORATION  (runs after React mounts)
+      ───────────────────────────────────────────────────────── */
+      const PTS_MAP = [500, 300, 400, 350, 250, 450, 200];
+      let ptsIdx = 0;
+
+      function decorateCards() {
+        // Target buttons / divs that look like cards inside #root
+        const cards = document.querySelectorAll(
+          '#root button.text-left, ' +
+          '#root div[class*="rounded-lg"], ' +
+          '#root div[class*="rounded-xl"], ' +
+          '#root a[class*="rounded-lg"]'
+        );
+
+        cards.forEach(card => {
+          if (card.dataset.ctfDone) return;
+          card.dataset.ctfDone = '1';
+          card.classList.add('ctf-challenge-card');
+
+          // pts badge
+          const badge = document.createElement('span');
+          badge.className = 'ctf-pts-badge';
+          badge.textContent = `pts: ${PTS_MAP[ptsIdx % PTS_MAP.length]}`;
+          ptsIdx++;
+          card.style.position = 'relative';
+          card.appendChild(badge);
+        });
+
+        // Blinking cursor after the name "Arya Koner" in the sidebar
+        document.querySelectorAll('#root h1').forEach(h1 => {
+          if (!h1.dataset.ctfCursor) {
+            h1.dataset.ctfCursor = '1';
+            h1.classList.add('ctf-cursor');
+          }
+        });
+      }
+
+      // Re-run as React renders pages
+      const observer = new MutationObserver(decorateCards);
+      observer.observe(document.getElementById('root'), { childList: true, subtree: true });
+      // Also trigger once root is ready
+      setTimeout(decorateCards, 800);
+
+      /* ─────────────────────────────────────────────────────────
+         C. BOOT SCREEN  (session-once)
+      ───────────────────────────────────────────────────────── */
+      const bootEl   = document.getElementById('ctf-boot-screen');
+      const linesEl  = document.getElementById('ctf-boot-lines');
+      const cursorEl = document.getElementById('ctf-boot-cursor');
+
+      const BOOT_LINES = [
+        { text: '[SYSTEM BOOT] MALWORLD OS v2.0', ok: false },
+        { text: '[OK] Loading exploit modules...',   ok: true  },
+        { text: '[OK] Initializing recon engine...', ok: true  },
+        { text: '[OK] CTF toolkit ready',            ok: true  },
+        { text: '[OK] Payload builder armed',        ok: true  },
+        { text: 'ACCESS GRANTED — Welcome, operator.', ok: false },
+      ];
+
+      const CHAR_DELAY = 80;   // ms per character
+      const POST_PAUSE = 1200; // ms after last line before fade
+
+      function alreadyShown() {
+        try { return sessionStorage.getItem('ctf-boot-shown') === '1'; } catch(e) { return false; }
+      }
+      function markShown() {
+        try { sessionStorage.setItem('ctf-boot-shown', '1'); } catch(e) {}
+      }
+
+      function typeLines(lines, onDone) {
+        let lineIdx = 0, charIdx = 0, lineSpan = null;
+
+        function next() {
+          if (lineIdx >= lines.length) { onDone(); return; }
+
+          const line = lines[lineIdx];
+
+          if (charIdx === 0) {
+            lineSpan = document.createElement('span');
+            lineSpan.className = 'boot-line';
+            linesEl.appendChild(lineSpan);
+          }
+
+          const fullText = line.text;
+          const ch = fullText[charIdx];
+
+          // If this line has [OK] prefix, colour it
+          if (line.ok && charIdx < 4) {
+            // append to an inner .ok span
+            let okSpan = lineSpan.querySelector('.ok');
+            if (!okSpan) {
+              okSpan = document.createElement('span');
+              okSpan.className = 'ok';
+              lineSpan.appendChild(okSpan);
+            }
+            okSpan.textContent += ch;
+          } else {
+            // plain text node at end of lineSpan
+            let textNode = lineSpan.lastChild;
+            if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
+              textNode = document.createTextNode('');
+              lineSpan.appendChild(textNode);
+            }
+            textNode.textContent += ch;
+          }
+
+          charIdx++;
+          if (charIdx >= fullText.length) {
+            lineSpan.textContent; // flush
+            lineIdx++;
+            charIdx = 0;
+            setTimeout(next, CHAR_DELAY * 2); // tiny pause between lines
+          } else {
+            setTimeout(next, CHAR_DELAY);
+          }
+        }
+
+        next();
+      }
+
+      function runBoot() {
+        if (alreadyShown()) {
+          bootEl.style.display = 'none';
+          return;
+        }
+
+        typeLines(BOOT_LINES, () => {
+          cursorEl.style.display = 'none';
+          markShown();
+          setTimeout(() => {
+            bootEl.classList.add('ctf-fade-out');
+            bootEl.addEventListener('transitionend', () => {
+              bootEl.style.display = 'none';
+            }, { once: true });
+          }, POST_PAUSE);
+        });
+      }
+
+      // Wait for DOM to be fully ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runBoot);
+      } else {
+        runBoot();
+      }
+
+    })();
+    </script>
+
   </body>
 </html>
