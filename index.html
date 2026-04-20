@@ -123,34 +123,112 @@
         margin-left: 2px;
       }
 
-      /* ── 7. CTF CARD BORDERS ──────────────────────────────────── */
+      /* ── 7. CTF CHALLENGE CARD SYSTEM ────────────────────────── */
       .ctf-challenge-card {
-        position: relative;
+        position: relative !important;
         border-left: 3px solid var(--ctf-green) !important;
-        border-color: var(--ctf-border) !important;
-        background: var(--ctf-card-bg) !important;
-        transition: box-shadow 0.25s ease, border-color 0.25s ease;
+        border-color: rgba(0,255,65,0.25) !important;
+        background: #0f1923 !important;
+        transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
       }
 
       .ctf-challenge-card:hover {
-        box-shadow: 0 0 18px rgba(0,255,65,0.15), inset 0 0 30px rgba(0,212,255,0.04);
+        box-shadow: 0 0 22px rgba(0,255,65,0.12), inset 0 0 30px rgba(0,212,255,0.03);
         border-left-color: var(--ctf-green) !important;
+        transform: translateY(-1px);
       }
 
-      .ctf-pts-badge {
+      /* Top-right meta row: category + difficulty stacked */
+      .ctf-card-meta {
         position: absolute;
         top: 8px;
         right: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      /* Category badge: Web / Pwn / Forensics / Crypto / Misc */
+      .ctf-cat-badge {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        padding: 2px 7px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        border: 1px solid;
+      }
+      .ctf-cat-web     { color: #00d4ff; background: rgba(0,212,255,0.10); border-color: rgba(0,212,255,0.35); }
+      .ctf-cat-pwn     { color: #ff4466; background: rgba(255,68,102,0.10); border-color: rgba(255,68,102,0.35); }
+      .ctf-cat-forensics { color: #c084fc; background: rgba(192,132,252,0.10); border-color: rgba(192,132,252,0.35); }
+      .ctf-cat-crypto  { color: #fbbf24; background: rgba(251,191,36,0.10); border-color: rgba(251,191,36,0.35); }
+      .ctf-cat-misc    { color: #94a3b8; background: rgba(148,163,184,0.08); border-color: rgba(148,163,184,0.25); }
+
+      /* Difficulty badge */
+      .ctf-diff-badge {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        padding: 2px 7px;
+        border-radius: 3px;
+        text-transform: uppercase;
+        border: 1px solid;
+      }
+      .ctf-diff-hard   { color: #ff4444; background: rgba(255,68,68,0.10); border-color: rgba(255,68,68,0.4); }
+      .ctf-diff-medium { color: #f59e0b; background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.4); }
+      .ctf-diff-easy   { color: #00ff41; background: rgba(0,255,65,0.10);  border-color: rgba(0,255,65,0.4);  }
+
+      /* pts label — bottom-left */
+      .ctf-pts-label {
+        position: absolute;
+        bottom: 8px;
+        left: 14px;
         font-size: 10px;
         font-weight: 700;
         color: var(--ctf-cyan);
-        background: rgba(0,212,255,0.10);
-        border: 1px solid rgba(0,212,255,0.3);
-        border-radius: 4px;
-        padding: 2px 7px;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.05em;
         pointer-events: none;
+        z-index: 10;
+        opacity: 0.85;
       }
+
+      /* UNSOLVED / SOLVED toggle — bottom-right */
+      .ctf-solve-toggle {
+        position: absolute;
+        bottom: 8px;
+        right: 10px;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        padding: 2px 8px;
+        border-radius: 3px;
+        border: 1px solid rgba(255,68,68,0.5);
+        color: #ff4444;
+        background: rgba(255,68,68,0.08);
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.2s ease;
+        user-select: none;
+      }
+      .ctf-solve-toggle.solved {
+        color: var(--ctf-green);
+        background: rgba(0,255,65,0.08);
+        border-color: rgba(0,255,65,0.4);
+      }
+      .ctf-solve-toggle.solving {
+        animation: ctfSolvePulse 0.4s ease;
+      }
+      @keyframes ctfSolvePulse {
+        0%   { transform: scale(1); opacity: 1; }
+        40%  { transform: scale(1.15); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      /* Keep existing pts badge from step-1 hidden — replaced by ctf-pts-label */
+      .ctf-pts-badge { display: none !important; }
 
       /* ── 8. XP SKILL BAR ANIMATION ───────────────────────────── */
       @keyframes xpFill {
@@ -267,18 +345,87 @@
       setInterval(drawMatrix, 55);
 
       /* ─────────────────────────────────────────────────────────
-         B. CTF CARD DECORATION  (runs after React mounts)
+         B. CTF CHALLENGE CARD DECORATOR  (runs after React mounts)
       ───────────────────────────────────────────────────────── */
-      const PTS_MAP = [500, 300, 400, 350, 250, 450, 200];
-      let ptsIdx = 0;
+
+      // ── Category keyword map ──────────────────────────────────
+      const CAT_RULES = [
+        { cat: 'pwn',      cls: 'ctf-cat-pwn',
+          kw: ['exploit','penetration','pentest','pentest','vapt','metasploit','burp suite',
+               'nmap','nessus','payload','shellcode','buffer overflow','rce','privilege',
+               'attack','malware','keylogger','honeypot'] },
+        { cat: 'forensics', cls: 'ctf-cat-forensics',
+          kw: ['forensic','autopsy','ftk','encase','wireshark','incident response',
+               'digital forensics','cybercrime','investigat'] },
+        { cat: 'crypto',   cls: 'ctf-cat-crypto',
+          kw: ['crypto','cryptograph','cipher','hash','otp','encryption','decryption','key'] },
+        { cat: 'web',      cls: 'ctf-cat-web',
+          kw: ['web','http','sql injection','xss','burp','injection','api','medium',
+               'bazaar','network traffic','packet','scapy'] },
+        { cat: 'misc',     cls: 'ctf-cat-misc',
+          kw: ['training','lecture','awareness','education','event','workshop','teaching',
+               'degree','university','certification','comptia','ai','automation','machine learning'] },
+      ];
+
+      // ── Difficulty keyword map ────────────────────────────────
+      const DIFF_RULES = [
+        { diff: 'HARD',   cls: 'ctf-diff-hard',
+          kw: ['advanced','enterprise','critical','autonomous','ai','framework',
+               'metasploit','exploit','malware','penetration','shellcode','bypass',
+               'wireshark','autopsy','ftk','encase','rce','privilege'] },
+        { diff: 'MEDIUM', cls: 'ctf-diff-medium',
+          kw: ['vapt','assessment','scan','vulnerability','nmap','nessus','burp',
+               'forensics','incident','analysis','detection','monitor','blackice'] },
+      ];
+
+      // Points pool varies by category
+      const PTS_BY_CAT = { pwn: [500,400,450], forensics: [350,400,300], crypto: [300,350], web: [250,300,200], misc: [100,150,200] };
+      let cardSeq = 0;
+
+      function inferCategory(text) {
+        const t = text.toLowerCase();
+        for (const rule of CAT_RULES) {
+          if (rule.kw.some(k => t.includes(k))) return rule;
+        }
+        return { cat: 'misc', cls: 'ctf-cat-misc' };
+      }
+
+      function inferDifficulty(text) {
+        const t = text.toLowerCase();
+        for (const rule of DIFF_RULES) {
+          if (rule.kw.some(k => t.includes(k))) return rule;
+        }
+        return { diff: 'EASY', cls: 'ctf-diff-easy' };
+      }
+
+      function pickPts(cat) {
+        const pool = PTS_BY_CAT[cat] || [200];
+        return pool[cardSeq % pool.length];
+      }
+
+      function makeSolveToggle() {
+        const btn = document.createElement('span');
+        btn.className = 'ctf-solve-toggle';
+        btn.textContent = '[ UNSOLVED ]';
+        btn.title = 'Click to toggle solved state';
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const solved = this.classList.toggle('solved');
+          this.classList.add('solving');
+          this.textContent = solved ? '[ SOLVED ]' : '[ UNSOLVED ]';
+          setTimeout(() => this.classList.remove('solving'), 400);
+        });
+        return btn;
+      }
 
       function decorateCards() {
-        // Target buttons / divs that look like cards inside #root
+        // All card-like elements across every page
         const cards = document.querySelectorAll(
           '#root button.text-left, ' +
           '#root div[class*="rounded-lg"], ' +
           '#root div[class*="rounded-xl"], ' +
-          '#root a[class*="rounded-lg"]'
+          '#root a[class*="rounded-lg"], ' +
+          '#root a[class*="rounded-xl"]'
         );
 
         cards.forEach(card => {
@@ -286,16 +433,41 @@
           card.dataset.ctfDone = '1';
           card.classList.add('ctf-challenge-card');
 
-          // pts badge
-          const badge = document.createElement('span');
-          badge.className = 'ctf-pts-badge';
-          badge.textContent = `pts: ${PTS_MAP[ptsIdx % PTS_MAP.length]}`;
-          ptsIdx++;
-          card.style.position = 'relative';
-          card.appendChild(badge);
+          // Collect readable text from this card for keyword analysis
+          const text = card.innerText || card.textContent || '';
+
+          const catInfo  = inferCategory(text);
+          const diffInfo = inferDifficulty(text);
+          const pts      = pickPts(catInfo.cat);
+          cardSeq++;
+
+          // ── Top-right meta block (category + difficulty) ──
+          const meta = document.createElement('div');
+          meta.className = 'ctf-card-meta';
+
+          const catBadge = document.createElement('span');
+          catBadge.className = 'ctf-cat-badge ' + catInfo.cls;
+          catBadge.textContent = catInfo.cat;
+          meta.appendChild(catBadge);
+
+          const diffBadge = document.createElement('span');
+          diffBadge.className = 'ctf-diff-badge ' + diffInfo.cls;
+          diffBadge.textContent = 'difficulty: ' + diffInfo.diff;
+          meta.appendChild(diffBadge);
+
+          card.appendChild(meta);
+
+          // ── Bottom-left pts ───────────────────────────────
+          const ptsLabel = document.createElement('span');
+          ptsLabel.className = 'ctf-pts-label';
+          ptsLabel.textContent = 'points: ' + pts;
+          card.appendChild(ptsLabel);
+
+          // ── Bottom-right UNSOLVED toggle ──────────────────
+          card.appendChild(makeSolveToggle());
         });
 
-        // Blinking cursor after the name "Arya Koner" in the sidebar
+        // Blinking cursor on h1 (hero name)
         document.querySelectorAll('#root h1').forEach(h1 => {
           if (!h1.dataset.ctfCursor) {
             h1.dataset.ctfCursor = '1';
@@ -304,10 +476,9 @@
         });
       }
 
-      // Re-run as React renders pages
+      // Re-run whenever React re-renders a page
       const observer = new MutationObserver(decorateCards);
       observer.observe(document.getElementById('root'), { childList: true, subtree: true });
-      // Also trigger once root is ready
       setTimeout(decorateCards, 800);
 
       /* ─────────────────────────────────────────────────────────
