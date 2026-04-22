@@ -239,7 +239,7 @@
   async function loadCommand(cmdName) {
     try {
       if (cmdName === 'dir') cmdName = 'ls';
-      const resp = await fetch(`pages/${cmdName}.js`);
+      const resp = await fetch(`pages/${cmdName}.js?t=${Date.now()}`);
       if (!resp.ok) throw new Error();
       const text = await resp.text();
       const fn = new Function(
