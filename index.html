@@ -146,7 +146,7 @@
       const text = await resp.text();
       const fn = new Function(
         'printBlank','println','printRaw','print','span','raw','blank','output','document','window',
-        text + `\\ntry{return cmd${cmdName[0].toUpperCase()+cmdName.slice(1)}()}catch(e){return window['cmd${cmdName[0].toUpperCase()+cmdName.slice(1)}']?window['cmd${cmdName[0].toUpperCase()+cmdName.slice(1)}']():cmdLs()}`
+        text + `\ntry{return cmd${cmdName[0].toUpperCase()+cmdName.slice(1)}()}catch(e){return window['cmd${cmdName[0].toUpperCase()+cmdName.slice(1)}']?window['cmd${cmdName[0].toUpperCase()+cmdName.slice(1)}']():cmdLs()}`
       );
       fn(printBlank, println, printRaw, print, span, raw, blank, output, document, window);
     } catch(e) {
