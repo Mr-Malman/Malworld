@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cmd.exe — MALWORLD\C:\Windows\System32</title>
@@ -9,16 +8,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
-  
-
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    @keyframes access-pulse {
+      0%,100% { text-shadow: 0 0 6px #00ff41, 0 0 20px #00ff4166; }
+      50%      { text-shadow: 0 0 16px #00ff41, 0 0 44px #00ff41bb; }
+    }
+    @keyframes flicker {
+      0%,100%{ opacity:1 } 10%{ opacity:.75 } 20%{ opacity:1 } 55%{ opacity:.88 } 65%{ opacity:1 }
+    }
+    body.booting #terminal-wrapper { animation: flicker .45s ease .05s 1; }
+  </style>
 </head>
-<body>
+<body class="booting">
 
-<!-- MATRIX RAIN CANVAS -->
 <canvas id="matrix-canvas"></canvas>
 
-<!-- WINDOW CHROME -->
 <div id="window-chrome">
   <div class="title-left">
     <div class="cmd-icon">C:</div>
@@ -31,7 +36,6 @@
   </div>
 </div>
 
-<!-- TERMINAL WRAPPER -->
 <div id="terminal-wrapper">
   <div id="output"></div>
   <div id="input-row">
@@ -41,60 +45,47 @@
            aria-label="Terminal input" />
   </div>
 </div>
-<script>
 
+<script>
 (function () {
   'use strict';
 
-  /* ══════════════════════════════════════════════════════════════
-     MATRIX RAIN
-  ══════════════════════════════════════════════════════════════ */
+  /* ─── MATRIX RAIN ─── */
   const canvas = document.getElementById('matrix-canvas');
   const ctx    = canvas.getContext('2d');
-  const HEX    = '0123456789ABCDEFアイウエカキクサシスセタチネノハヒフヘホマミムメモ';
-  let cols, drops, rafId, paused = false;
-
+  const CHARS  = '0123456789ABCDEFアイウエカキクサシスセタチネノハヒフヘホマミムメモ';
+  let cols, drops, paused = false;
   function resizeMatrix() {
     canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
     cols  = Math.floor(canvas.width / 14);
     drops = Array.from({ length: cols }, () => Math.random() * -canvas.height / 14);
   }
-
   function drawMatrix() {
-    if (paused) { rafId = requestAnimationFrame(drawMatrix); return; }
-    ctx.fillStyle = 'rgba(10,10,10,0.04)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    drops.forEach((y, i) => {
-      const bright = Math.random() > 0.9;
-      ctx.fillStyle = bright ? '#00ff41' : '#006b1b';
-      ctx.font = '13px "JetBrains Mono", monospace';
-      ctx.fillText(HEX[Math.floor(Math.random() * HEX.length)], i * 14, y * 14);
-      if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
-      drops[i] += 0.6;
-    });
-    rafId = requestAnimationFrame(drawMatrix);
+    if (!paused) {
+      ctx.fillStyle = 'rgba(10,10,10,0.04)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      drops.forEach((y, i) => {
+        ctx.fillStyle = Math.random() > 0.9 ? '#00ff41' : '#006b1b';
+        ctx.font = '13px "JetBrains Mono",monospace';
+        ctx.fillText(CHARS[Math.floor(Math.random() * CHARS.length)], i * 14, y * 14);
+        if (y * 14 > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i] += 0.6;
+      });
+    }
+    requestAnimationFrame(drawMatrix);
   }
-
   window.addEventListener('resize', resizeMatrix);
   document.addEventListener('visibilitychange', () => { paused = document.hidden; });
-  resizeMatrix();
-  rafId = requestAnimationFrame(drawMatrix);
+  resizeMatrix(); drawMatrix();
 
-  /* ══════════════════════════════════════════════════════════════
-     DOM REFS
-  ══════════════════════════════════════════════════════════════ */
-  const output    = document.getElementById('output');
-  const input     = document.getElementById('cmd-input');
-  const wrapEl    = document.getElementById('terminal-wrapper');
+  /* ─── DOM ─── */
+  const output = document.getElementById('output');
+  const input  = document.getElementById('cmd-input');
+  const wrapEl = document.getElementById('terminal-wrapper');
+  document.getElementById('btn-close').addEventListener('click', () => runCommand('exit'));
 
-  document.getElementById('btn-close').addEventListener('click', () => {
-    runCommand('exit');
-  });
-
-  /* ══════════════════════════════════════════════════════════════
-     PRINT HELPERS
-  ══════════════════════════════════════════════════════════════ */
+  /* ─── HELPERS ─── */
   function span(cls, text) {
     const s = document.createElement('span');
     s.className = 'line ' + (cls || '');
@@ -112,237 +103,208 @@
     d.className = 'line-blank';
     return d;
   }
-  function print(el) {
-    output.appendChild(el);
-    output.scrollTop = output.scrollHeight;
-  }
+  function print(el)          { output.appendChild(el); output.scrollTop = output.scrollHeight; }
   function println(cls, text) { print(span(cls, text)); }
   function printRaw(html)     { print(raw(html)); }
   function printBlank()       { print(blank()); }
 
-  /* ══════════════════════════════════════════════════════════════
-     TYPEWRITER ENGINE
-  ══════════════════════════════════════════════════════════════ */
+  /* ─── TYPEWRITER (used by page modules) ─── */
   function typewrite(lines, charDelay, lineDelay, onDone) {
     let li = 0;
-
     function nextLine() {
       if (li >= lines.length) { if (onDone) onDone(); return; }
       const def = lines[li++];
       if (def === null) { printBlank(); setTimeout(nextLine, lineDelay * 0.3); return; }
-
       const cls   = def.cls  || '';
       const text  = def.text || '';
       const delay = def.delay !== undefined ? def.delay : charDelay;
-
       const lineEl = document.createElement('span');
       lineEl.className = 'line ' + cls;
       output.appendChild(lineEl);
-
       let ci = 0;
-      function nextChar() {
+      (function nextChar() {
         if (ci >= text.length) { output.scrollTop = output.scrollHeight; setTimeout(nextLine, lineDelay); return; }
         lineEl.textContent += text[ci++];
         output.scrollTop = output.scrollHeight;
         setTimeout(nextChar, delay);
-      }
-      nextChar();
+      })();
     }
     nextLine();
   }
 
-  /* ══════════════════════════════════════════════════════════════
-     COMMAND HISTORY
-  ══════════════════════════════════════════════════════════════ */
-  const history = [];
-  let histIdx   = -1;
-
-  /* ══════════════════════════════════════════════════════════════
-     ALL COMMANDS
-  ══════════════════════════════════════════════════════════════ */
+  /* ─── HISTORY ─── */
+  const history = []; let histIdx = -1;
   const COMMANDS = ['help','about','skills','projects','experience','education','tools','social','contact','whoami','ls','clear','exit'];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   window.exited = false;
 
-  /* ══════════════════════════════════════════════════════════════
-     COMMAND ROUTER
-  ══════════════════════════════════════════════════════════════ */
-  
+  /* ─── LOADER ─── */
   async function loadCommand(cmdName) {
     try {
       if (cmdName === 'dir') cmdName = 'ls';
-      const response = await fetch(`pages/${cmdName}.js`);
-      if (!response.ok) throw new Error('Not found');
-      const text = await response.text();
-      // create a new function
-      const fn = new Function('printBlank', 'println', 'printRaw', 'print', 'span', 'raw', 'blank', 'output', 'document', 'window', text + `\ntry { return cmd${cmdName.charAt(0).toUpperCase() + cmdName.slice(1)}(); } catch(e) { /* handle aliased names like ls */ return window['cmd' + cmdName.charAt(0).toUpperCase() + cmdName.slice(1)] ? window['cmd' + cmdName.charAt(0).toUpperCase() + cmdName.slice(1)]() : cmdLs(); }`);
+      const resp = await fetch(`pages/${cmdName}.js`);
+      if (!resp.ok) throw new Error();
+      const text = await resp.text();
+      const fn = new Function(
+        'printBlank','println','printRaw','print','span','raw','blank','output','document','window',
+        text + `\ntry{return cmd${cmdName[0].toUpperCase()+cmdName.slice(1)}()}catch(e){return window['cmd${cmdName[0].toUpperCase()+cmdName.slice(1)}']?window['cmd${cmdName[0].toUpperCase()+cmdName.slice(1)]']():cmdLs()}`
+      );
       fn(printBlank, println, printRaw, print, span, raw, blank, output, document, window);
-    } catch (e) {
-        console.error(e);
-        printBlank();
-        println('c-red', `Failed to load command module '${cmdName}'.`);
-        printBlank();
+    } catch(e) {
+      printBlank(); println('c-red', `Failed to load '${cmdName}'.`); printBlank();
     }
   }
 
-  async function runCommand(raw) {
-    const cmd = raw.trim().toLowerCase();
+  async function runCommand(rawCmd) {
+    const cmd = rawCmd.trim().toLowerCase();
     if (!cmd) return;
-
-    // Echo the typed command
     if (cmd !== '__boot__') {
       const echo = document.createElement('span');
       echo.className = 'cmd-echo line';
-      echo.textContent = raw.trim();
+      echo.textContent = rawCmd.trim();
       print(echo);
     }
-
-    switch (cmd) {
-      case 'help': await loadCommand('help'); break;
-      case 'whoami': await loadCommand('whoami'); break;
-      case 'ls':
-      case 'dir': await loadCommand('dir'); break;
-      case 'about': await loadCommand('about'); break;
-      case 'skills': await loadCommand('skills'); break;
-      case 'projects': await loadCommand('projects'); break;
-      case 'experience': await loadCommand('experience'); break;
-      case 'education': await loadCommand('education'); break;
-      case 'tools': await loadCommand('tools'); break;
-      case 'social': await loadCommand('social'); break;
-      case 'contact': await loadCommand('contact'); break;
-      case 'clear': await loadCommand('clear'); break;
-      case 'exit': await loadCommand('exit'); break;
-      default:
-        printBlank();
-        println('c-red', `'${raw.trim()}' is not recognized as an internal or external command,`);
-        println('c-red', `operable program or batch file.`);
-        println('c-dim', `Type 'help' to see available commands.`);
-        printBlank();
+    const map = { help:1,whoami:1,ls:1,dir:1,about:1,skills:1,projects:1,experience:1,education:1,tools:1,social:1,contact:1,clear:1,exit:1 };
+    if (map[cmd]) await loadCommand(cmd === 'dir' ? 'ls' : cmd);
+    else {
+      printBlank();
+      println('c-red', `'${rawCmd.trim()}' is not recognized as an internal or external command,`);
+      println('c-red', 'operable program or batch file.');
+      println('c-dim', "Type 'help' to see available commands.");
+      printBlank();
     }
     output.scrollTop = output.scrollHeight;
   }
 
-  /* ══════════════════════════════════════════════════════════════
-     INPUT HANDLING
-  ══════════════════════════════════════════════════════════════ */
+  /* ─── INPUT ─── */
   input.addEventListener('keydown', e => {
     if (window.exited) return;
-
     if (e.key === 'Enter') {
       const val = input.value;
-      if (val.trim()) {
-        history.unshift(val);
-        histIdx = -1;
-      }
-      input.value = '';
-      runCommand(val);
-
+      if (val.trim()) { history.unshift(val); histIdx = -1; }
+      input.value = ''; runCommand(val);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      if (histIdx < history.length - 1) {
-        histIdx++;
-        input.value = history[histIdx];
-        setTimeout(() => input.setSelectionRange(input.value.length, input.value.length), 0);
-      }
-
+      if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx]; setTimeout(() => input.setSelectionRange(input.value.length, input.value.length), 0); }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      if (histIdx > 0) {
-        histIdx--;
-        input.value = history[histIdx];
-      } else {
-        histIdx = -1;
-        input.value = '';
-      }
-
+      if (histIdx > 0) { histIdx--; input.value = history[histIdx]; } else { histIdx = -1; input.value = ''; }
     } else if (e.key === 'Tab') {
       e.preventDefault();
-      const partial = input.value.trim().toLowerCase();
-      if (!partial) return;
-      const match = COMMANDS.find(c => c.startsWith(partial));
-      if (match) input.value = match;
-
+      const p = input.value.trim().toLowerCase();
+      const m = COMMANDS.find(c => c.startsWith(p));
+      if (m) input.value = m;
     } else if (e.key === 'l' && e.ctrlKey) {
-      e.preventDefault();
-      cmdClear();
-
+      e.preventDefault(); output.innerHTML = ''; println('c-dim','[buffer cleared]'); printBlank();
     } else if (e.key === 'c' && e.ctrlKey) {
-      e.preventDefault();
-      const el = span('c-red', '^C');
-      print(el);
-      printBlank();
-      input.value = '';
+      e.preventDefault(); print(span('c-red','^C')); printBlank(); input.value = '';
     }
   });
+  wrapEl.addEventListener('click', () => { if (!window.getSelection().toString()) input.focus(); });
 
-  // Click anywhere → focus input
-  wrapEl.addEventListener('click', () => {
-    if (!window.getSelection().toString()) input.focus();
-  });
-
-  /* ══════════════════════════════════════════════════════════════
-     BOOT SEQUENCE
-  ══════════════════════════════════════════════════════════════ */
+  /* ════════════════════════════════════════════════════
+     BOOT — every line has an absolute `at` timestamp.
+     Total runtime: ~2000 ms, input unlocks at 2100 ms.
+  ════════════════════════════════════════════════════ */
   input.disabled = true;
 
-  const BOOT_LINES = [
-    { text: 'Microsoft Windows [Version 10.0.19045.4170]', cls: '', delay: 28 },
-    { text: '(c) Microsoft Corporation. All rights reserved.', cls: 'c-dim', delay: 22 },
-    null,
-    { text: 'C:\\Windows\\System32>', cls: 'c-dim', delay: 20 },
-    null,
-    null,
-    { text: '[*] Incoming connection from 192.168.1.47:4444', cls: 'c-yellow', delay: 22 },
-    { text: '[*] Meterpreter session 1 opened (10.0.0.9:8080 -> 192.168.1.47:4444)', cls: 'c-yellow', delay: 18 },
-    null,
-    { text: 'meterpreter > shell', cls: 'c-green', delay: 55 },
-    null,
-    { text: 'Process 4821 created.', cls: 'c-dim', delay: 22 },
-    { text: 'Channel 1 created.', cls: 'c-dim', delay: 22 },
-    null,
-    { text: 'C:\\Windows\\system32> whoami', cls: 'c-green', delay: 55 },
-    { text: 'malworld\\mal-operator', cls: 'c-cyan bold', delay: 22 },
-    null,
-    { text: 'C:\\Windows\\system32> cd C:\\Users\\victim', cls: 'c-green', delay: 45 },
-    null,
-    { text: '╔══════════════════════════════════════════════════════════╗', cls: 'c-green', delay: 6 },
-    { text: '║  ACCESS GRANTED — MALWORLD TERMINAL v2.0                ║', cls: 'c-green bold', delay: 6 },
-    { text: '║  Type \'help\' to begin reconnaissance.                   ║', cls: 'c-green', delay: 6 },
-    { text: '╚══════════════════════════════════════════════════════════╝', cls: 'c-green', delay: 6 },
-    null,
-  ];
+  const NOW = new Date().toISOString().replace('T',' ').slice(0,19);
 
-  typewrite(BOOT_LINES, 22, 60, () => {
+  // schedule({ at, cls, text }) or schedule({ at, html })
+  function fire(lines) {
+    lines.forEach(l => setTimeout(() => {
+      l.html !== undefined ? printRaw(l.html) : println(l.cls || '', l.text || '');
+    }, l.at));
+  }
+
+  fire([
+    // ── windows banner
+    { at:   0, cls:'',       text:'Microsoft Windows [Version 10.0.19045.4170]' },
+    { at:  30, cls:'c-dim',  text:'(c) Microsoft Corporation. All rights reserved.' },
+
+    // ── recon noise
+    { at:  90, cls:'c-dim',  text:'C:\\> nmap -sS -sV --open 192.168.1.47' },
+    { at: 120, cls:'c-yellow',text:'[*] Nmap 7.94 — scanning 192.168.1.47 (65535 ports)...' },
+    { at: 148, html:'<span class="c-green">22/tcp   open  ssh</span>   OpenSSH 8.2p1 Ubuntu 20.04' },
+    { at: 165, html:'<span class="c-green">80/tcp   open  http</span>  Apache httpd 2.4.51' },
+    { at: 182, html:'<span class="c-green">445/tcp  open  smb</span>   <span class="c-red">MS17-010 EternalBlue — VULNERABLE</span>' },
+    { at: 200, html:'<span class="c-green">3389/tcp open  rdp</span>   Microsoft Terminal Services' },
+    { at: 218, cls:'c-red bold', text:'[!] CRITICAL: SMB remote code execution — no auth required' },
+
+    // ── exploit
+    { at: 270, cls:'c-green', text:'msf6 exploit(ms17_010_eternalblue) > run' },
+    { at: 298, cls:'c-yellow',text:'[*] Started reverse TCP handler on 10.0.0.9:4444' },
+    { at: 322, cls:'c-yellow',text:'[*] Sending exploit buffer to 192.168.1.47:445...' },
+    { at: 348, cls:'c-yellow',text:'[*] Kernel overflow triggered — injecting shellcode...' },
+    { at: 375, cls:'c-yellow',text:'[*] Uploading Meterpreter stage (200774 bytes)...' },
+    { at: 402, cls:'c-green bold', text:'[+] Meterpreter session 1 opened  10.0.0.9:4444 → 192.168.1.47:49152' },
+
+    // ── shell + whoami
+    { at: 455, cls:'c-green',     text:'meterpreter > shell' },
+    { at: 475, cls:'c-dim',       text:'Process 4821 created.  Channel 1 created.' },
+    { at: 510, cls:'c-green',     text:'C:\\Windows\\system32> whoami' },
+    { at: 535, cls:'c-cyan bold', text:'nt authority\\system' },
+
+    // ── hex / decrypt noise
+    { at: 590, cls:'c-yellow', text:'[*] Decrypting operator profile — AES-256-GCM...' },
+    { at: 612, html:'<span class="c-dim">0x0000  </span><span style="color:#c084fc">4d 5a 90 00 03 00 b4 09  4c 21 54 68 69 73 20 70</span>  <span style="color:#00d4ff">MZ......L!This p</span>' },
+    { at: 628, html:'<span class="c-dim">0x0010  </span><span style="color:#c084fc">72 6f 67 72 61 6d 20 63  61 6e 6e 6f 74 20 62 65</span>  <span style="color:#00d4ff">rogram cannot be</span>' },
+    { at: 644, html:'<span class="c-dim">0x0020  </span><span style="color:#c084fc">20 72 75 6e 20 69 6e 20  44 4f 53 20 6d 6f 64 65</span>  <span style="color:#00d4ff"> run in DOS mode</span>' },
+    { at: 660, html:'<span style="color:#00d4ff">DECRYPTED → </span><span class="c-green">Arya Koner  |  Mr. Malman  |  Cybersecurity Researcher</span>' },
+
+    // ── privs
+    { at: 715, cls:'c-green',    text:'C:\\Windows\\system32> whoami /priv' },
+    { at: 738, html:'<span class="c-yellow">SeDebugPrivilege          </span><span class="c-green bold">ENABLED</span>' },
+    { at: 754, html:'<span class="c-yellow">SeImpersonatePrivilege    </span><span class="c-green bold">ENABLED</span>' },
+    { at: 770, html:'<span class="c-yellow">SeTakeOwnershipPrivilege  </span><span class="c-green bold">ENABLED</span>' },
+
+    // ── hash dump
+    { at: 820, cls:'c-yellow', text:'[*] Dumping NTLM hashes...' },
+    { at: 842, html:'<span class="c-dim">Administrator:</span><span style="color:#c084fc">500:aad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::</span>' },
+    { at: 858, html:'<span class="c-dim">victim:       </span><span style="color:#c084fc">1001:aad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c:::</span>' },
+    { at: 876, cls:'c-green', text:'[+] 4 accounts compromised' },
+
+    // ── pivot + persistence
+    { at: 928, cls:'c-green', text:'C:\\Windows\\system32> cd C:\\Users\\victim' },
+    { at: 955, cls:'c-yellow',text:'[*] Planting persistence — HKLM\\Run registry key...' },
+    { at: 980, cls:'c-green', text:'[+] Backdoor installed. Session encrypted. 3-hop TOR routed.' },
+    { at:1005, html:'<span class="c-dim">malworld\\mal-operator  SID: S-1-5-21-3457823498-1337-4444-500</span>' },
+    { at:1028, html:'<span class="c-dim">Logon: </span><span class="c-green">' + NOW + ' UTC</span>' },
+  ]);
+
+  // ── ACCESS GRANTED banner at 1180ms
+  setTimeout(() => {
+    printBlank();
+    [
+      { t:'╔══════════════════════════════════════════════════════════╗', bold:false },
+      { t:'║  ACCESS GRANTED — MALWORLD TERMINAL v2.0                ║', bold:true  },
+      { t:"║  You're inside. Type 'help' to begin reconnaissance.    ║", bold:false },
+      { t:'╚══════════════════════════════════════════════════════════╝', bold:false },
+    ].forEach((l, i) => {
+      setTimeout(() => {
+        const el = document.createElement('span');
+        el.className = 'line c-green' + (l.bold ? ' bold' : '');
+        el.style.cssText = 'animation:access-pulse 1.6s ease-in-out infinite;';
+        el.textContent = l.t;
+        output.appendChild(el);
+        output.scrollTop = output.scrollHeight;
+      }, i * 50);
+    });
+  }, 1180);
+
+  // ── unlock at 1600ms
+  setTimeout(() => {
+    printBlank();
+    document.body.classList.remove('booting');
     input.disabled = false;
     input.focus();
-  });
+  }, 1600);
+
+  // inject keyframe so inline style animation works
+  const ks = document.createElement('style');
+  ks.textContent = `@keyframes access-pulse{0%,100%{text-shadow:0 0 6px #00ff41,0 0 20px #00ff4155}50%{text-shadow:0 0 18px #00ff41,0 0 48px #00ff41bb}}`;
+  document.head.appendChild(ks);
 
 })();
-
 </script>
 </body>
 </html>
