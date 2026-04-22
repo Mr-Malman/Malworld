@@ -18,9 +18,15 @@
       0%,100%{ opacity:1 } 10%{ opacity:.75 } 20%{ opacity:1 } 55%{ opacity:.88 } 65%{ opacity:1 }
     }
     body.booting #terminal-wrapper { animation: flicker .45s ease .05s 1; }
+    #btn-init-attack:hover { background: #00ff41; color: #000; box-shadow: 0 0 25px #00ff41; }
   </style>
 </head>
 <body class="booting">
+
+<div id="attack-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; display:flex; justify-content:center; align-items:center; z-index:9999; flex-direction:column;">
+  <button id="btn-init-attack" style="padding:15px 40px; font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:bold; color:#00ff41; background:transparent; border:2px solid #00ff41; cursor:pointer; text-transform:uppercase; box-shadow:0 0 15px #00ff4144; transition:all 0.2s; outline:none;">Initiate Attack</button>
+  <p style="color:#00ff41; font-family:'JetBrains Mono',monospace; margin-top:20px; opacity:0.7; font-size:14px;">[ Target: MALWORLD ]</p>
+</div>
 
 <canvas id="matrix-canvas"></canvas>
 
@@ -202,107 +208,138 @@
   wrapEl.addEventListener('click', () => { if (!window.getSelection().toString()) input.focus(); });
 
   /* ════════════════════════════════════════════════════
-     BOOT — every line has an absolute `at` timestamp.
-     Total runtime: ~2000 ms, input unlocks at 2100 ms.
+     BOOT — Triggered by button click
   ════════════════════════════════════════════════════ */
   input.disabled = true;
 
-  const NOW = new Date().toISOString().replace('T',' ').slice(0,19);
+  const btnAttack = document.getElementById('btn-init-attack');
+  const overlay = document.getElementById('attack-overlay');
 
-  // schedule({ at, cls, text }) or schedule({ at, html })
-  function fire(lines) {
-    lines.forEach(l => setTimeout(() => {
-      l.html !== undefined ? printRaw(l.html) : println(l.cls || '', l.text || '');
-    }, l.at));
+  btnAttack.addEventListener('click', () => {
+    overlay.style.display = 'none';
+    startBootSequence();
+  });
+
+  function startBootSequence() {
+    const NOW = new Date().toISOString().replace('T',' ').slice(0,19);
+
+    // schedule({ at, cls, text }) or schedule({ at, html })
+    function fire(lines) {
+      lines.forEach(l => setTimeout(() => {
+        l.html !== undefined ? printRaw(l.html) : println(l.cls || '', l.text || '');
+      }, l.at));
+    }
+
+    const bootLines = [
+      // ── windows banner
+      { at:   0, cls:'',       text:'Microsoft Windows [Version 10.0.19045.4170]' },
+      { at:  30, cls:'c-dim',  text:'(c) Microsoft Corporation. All rights reserved.' },
+
+      // ── recon noise
+      { at:  90, cls:'c-dim',  text:'C:\\> nmap -sS -sV --open 192.168.1.47' },
+      { at: 120, cls:'c-yellow',text:'[*] Nmap 7.94 — scanning 192.168.1.47 (65535 ports)...' },
+      { at: 148, html:'<span class="c-green">22/tcp   open  ssh</span>   OpenSSH 8.2p1 Ubuntu 20.04' },
+      { at: 165, html:'<span class="c-green">80/tcp   open  http</span>  Apache httpd 2.4.51' },
+      { at: 182, html:'<span class="c-green">445/tcp  open  smb</span>   <span class="c-red">MS17-010 EternalBlue — VULNERABLE</span>' },
+      { at: 200, html:'<span class="c-green">3389/tcp open  rdp</span>   Microsoft Terminal Services' },
+      { at: 218, cls:'c-red bold', text:'[!] CRITICAL: SMB remote code execution — no auth required' },
+
+      // ── exploit
+      { at: 270, cls:'c-green', text:'msf6 exploit(ms17_010_eternalblue) > run' },
+      { at: 298, cls:'c-yellow',text:'[*] Started reverse TCP handler on 10.0.0.9:4444' },
+      { at: 322, cls:'c-yellow',text:'[*] Sending exploit buffer to 192.168.1.47:445...' },
+      { at: 348, cls:'c-yellow',text:'[*] Kernel overflow triggered — injecting shellcode...' },
+      { at: 375, cls:'c-yellow',text:'[*] Uploading Meterpreter stage (200774 bytes)...' },
+      { at: 402, cls:'c-green bold', text:'[+] Meterpreter session 1 opened  10.0.0.9:4444 → 192.168.1.47:49152' },
+
+      // ── shell + whoami
+      { at: 455, cls:'c-green',     text:'meterpreter > shell' },
+      { at: 475, cls:'c-dim',       text:'Process 4821 created.  Channel 1 created.' },
+      { at: 510, cls:'c-green',     text:'C:\\Windows\\system32> whoami' },
+      { at: 535, cls:'c-cyan bold', text:'nt authority\\system' },
+
+      // ── hex / decrypt noise
+      { at: 590, cls:'c-yellow', text:'[*] Decrypting operator profile — AES-256-GCM...' },
+      { at: 612, html:'<span class="c-dim">0x0000  </span><span style="color:#c084fc">4d 5a 90 00 03 00 b4 09  4c 21 54 68 69 73 20 70</span>  <span style="color:#00d4ff">MZ......L!This p</span>' },
+      { at: 628, html:'<span class="c-dim">0x0010  </span><span style="color:#c084fc">72 6f 67 72 61 6d 20 63  61 6e 6e 6f 74 20 62 65</span>  <span style="color:#00d4ff">rogram cannot be</span>' },
+      { at: 644, html:'<span class="c-dim">0x0020  </span><span style="color:#c084fc">20 72 75 6e 20 69 6e 20  44 4f 53 20 6d 6f 64 65</span>  <span style="color:#00d4ff"> run in DOS mode</span>' },
+      { at: 660, html:'<span style="color:#00d4ff">DECRYPTED → </span><span class="c-green">Arya Koner  |  Mr. Malman  |  Cybersecurity Researcher</span>' },
+
+      // ── privs
+      { at: 715, cls:'c-green',    text:'C:\\Windows\\system32> whoami /priv' },
+      { at: 738, html:'<span class="c-yellow">SeDebugPrivilege          </span><span class="c-green bold">ENABLED</span>' },
+      { at: 754, html:'<span class="c-yellow">SeImpersonatePrivilege    </span><span class="c-green bold">ENABLED</span>' },
+      { at: 770, html:'<span class="c-yellow">SeTakeOwnershipPrivilege  </span><span class="c-green bold">ENABLED</span>' },
+
+      // ── hash dump
+      { at: 820, cls:'c-yellow', text:'[*] Dumping NTLM hashes...' },
+      { at: 842, html:'<span class="c-dim">Administrator:</span><span style="color:#c084fc">500:aad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::</span>' },
+      { at: 858, html:'<span class="c-dim">victim:       </span><span style="color:#c084fc">1001:aad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c:::</span>' },
+      { at: 876, cls:'c-green', text:'[+] 4 accounts compromised' },
+
+      // ── pivot + persistence
+      { at: 928, cls:'c-green', text:'C:\\Windows\\system32> cd C:\\Users\\victim' },
+      { at: 955, cls:'c-yellow',text:'[*] Planting persistence — HKLM\\Run registry key...' },
+      { at: 980, cls:'c-green', text:'[+] Backdoor installed. Session encrypted. 3-hop TOR routed.' },
+      { at:1005, html:'<span class="c-dim">malworld\\mal-operator  SID: S-1-5-21-3457823498-1337-4444-500</span>' },
+      { at:1028, html:'<span class="c-dim">Logon: </span><span class="c-green">' + NOW + ' UTC</span>' },
+    ];
+
+    // ── SUPER FAST CRACKING (1100ms to 5500ms)
+    let cTime = 1100;
+    while (cTime < 5400) {
+      cTime += (Math.random() * 20 + 5); // very fast intervals
+      const hex = Array.from({length:8}, () => Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(' ');
+      const types = [
+        `[!] OVERFLOW: buffer injected at 0x${Math.floor(Math.random()*0xffffffff).toString(16)}`,
+        `[*] CRACKING SHA-256: ${Math.random().toString(36).substring(2)}...`,
+        `<span class="c-dim">0x${Math.floor(Math.random()*0xffff).toString(16).padStart(4,'0')}  </span><span style="color:#c084fc">${hex}</span>`,
+        `<span class="c-dim">0x${Math.floor(Math.random()*0xffff).toString(16).padStart(4,'0')}  </span><span style="color:#c084fc">${hex}</span>`,
+        `[+] Segment mapped. Executing shellcode payload...`,
+        `<span class="c-yellow">Decrypting block ${Math.floor(Math.random()*10000)}...</span>`
+      ];
+      bootLines.push({ at: Math.floor(cTime), html: types[Math.floor(Math.random()*types.length)] });
+    }
+
+    bootLines.push({ at: 5450, cls: 'c-green bold', text: '[+] SYSTEM COMPROMISED. ALL SECURITY MEASURES DISABLED.' });
+    bootLines.push({ at: 5500, cls: 'c-yellow', text: '[*] Establishing secure tunnel...' });
+    bootLines.push({ at: 5550, cls: 'c-green', text: '[+] Connection established to MALWORLD core.' });
+
+    fire(bootLines);
+
+    // ── ACCESS GRANTED banner at 5800ms
+    setTimeout(() => {
+      printBlank();
+      [
+        { t:'╔══════════════════════════════════════════════════════════╗', bold:false },
+        { t:'║  You successfully hacked the machine                     ║', bold:true  },
+        { t:'║  and now you can enter malworld                          ║', bold:false },
+        { t:'╚══════════════════════════════════════════════════════════╝', bold:false },
+      ].forEach((l, i) => {
+        setTimeout(() => {
+          const el = document.createElement('span');
+          el.className = 'line c-green' + (l.bold ? ' bold' : '');
+          el.style.cssText = 'animation:access-pulse 1.6s ease-in-out infinite;';
+          el.textContent = l.t;
+          output.appendChild(el);
+          output.scrollTop = output.scrollHeight;
+        }, i * 50);
+      });
+    }, 5800);
+
+    // ── unlock at 6200ms
+    setTimeout(() => {
+      printBlank();
+      document.body.classList.remove('booting');
+      input.disabled = false;
+      input.focus();
+    }, 6200);
+
+    // inject keyframe so inline style animation works
+    const ks = document.createElement('style');
+    ks.textContent = `@keyframes access-pulse{0%,100%{text-shadow:0 0 6px #00ff41,0 0 20px #00ff4155}50%{text-shadow:0 0 18px #00ff41,0 0 48px #00ff41bb}}`;
+    document.head.appendChild(ks);
   }
-
-  fire([
-    // ── windows banner
-    { at:   0, cls:'',       text:'Microsoft Windows [Version 10.0.19045.4170]' },
-    { at:  30, cls:'c-dim',  text:'(c) Microsoft Corporation. All rights reserved.' },
-
-    // ── recon noise
-    { at:  90, cls:'c-dim',  text:'C:\\> nmap -sS -sV --open 192.168.1.47' },
-    { at: 120, cls:'c-yellow',text:'[*] Nmap 7.94 — scanning 192.168.1.47 (65535 ports)...' },
-    { at: 148, html:'<span class="c-green">22/tcp   open  ssh</span>   OpenSSH 8.2p1 Ubuntu 20.04' },
-    { at: 165, html:'<span class="c-green">80/tcp   open  http</span>  Apache httpd 2.4.51' },
-    { at: 182, html:'<span class="c-green">445/tcp  open  smb</span>   <span class="c-red">MS17-010 EternalBlue — VULNERABLE</span>' },
-    { at: 200, html:'<span class="c-green">3389/tcp open  rdp</span>   Microsoft Terminal Services' },
-    { at: 218, cls:'c-red bold', text:'[!] CRITICAL: SMB remote code execution — no auth required' },
-
-    // ── exploit
-    { at: 270, cls:'c-green', text:'msf6 exploit(ms17_010_eternalblue) > run' },
-    { at: 298, cls:'c-yellow',text:'[*] Started reverse TCP handler on 10.0.0.9:4444' },
-    { at: 322, cls:'c-yellow',text:'[*] Sending exploit buffer to 192.168.1.47:445...' },
-    { at: 348, cls:'c-yellow',text:'[*] Kernel overflow triggered — injecting shellcode...' },
-    { at: 375, cls:'c-yellow',text:'[*] Uploading Meterpreter stage (200774 bytes)...' },
-    { at: 402, cls:'c-green bold', text:'[+] Meterpreter session 1 opened  10.0.0.9:4444 → 192.168.1.47:49152' },
-
-    // ── shell + whoami
-    { at: 455, cls:'c-green',     text:'meterpreter > shell' },
-    { at: 475, cls:'c-dim',       text:'Process 4821 created.  Channel 1 created.' },
-    { at: 510, cls:'c-green',     text:'C:\\Windows\\system32> whoami' },
-    { at: 535, cls:'c-cyan bold', text:'nt authority\\system' },
-
-    // ── hex / decrypt noise
-    { at: 590, cls:'c-yellow', text:'[*] Decrypting operator profile — AES-256-GCM...' },
-    { at: 612, html:'<span class="c-dim">0x0000  </span><span style="color:#c084fc">4d 5a 90 00 03 00 b4 09  4c 21 54 68 69 73 20 70</span>  <span style="color:#00d4ff">MZ......L!This p</span>' },
-    { at: 628, html:'<span class="c-dim">0x0010  </span><span style="color:#c084fc">72 6f 67 72 61 6d 20 63  61 6e 6e 6f 74 20 62 65</span>  <span style="color:#00d4ff">rogram cannot be</span>' },
-    { at: 644, html:'<span class="c-dim">0x0020  </span><span style="color:#c084fc">20 72 75 6e 20 69 6e 20  44 4f 53 20 6d 6f 64 65</span>  <span style="color:#00d4ff"> run in DOS mode</span>' },
-    { at: 660, html:'<span style="color:#00d4ff">DECRYPTED → </span><span class="c-green">Arya Koner  |  Mr. Malman  |  Cybersecurity Researcher</span>' },
-
-    // ── privs
-    { at: 715, cls:'c-green',    text:'C:\\Windows\\system32> whoami /priv' },
-    { at: 738, html:'<span class="c-yellow">SeDebugPrivilege          </span><span class="c-green bold">ENABLED</span>' },
-    { at: 754, html:'<span class="c-yellow">SeImpersonatePrivilege    </span><span class="c-green bold">ENABLED</span>' },
-    { at: 770, html:'<span class="c-yellow">SeTakeOwnershipPrivilege  </span><span class="c-green bold">ENABLED</span>' },
-
-    // ── hash dump
-    { at: 820, cls:'c-yellow', text:'[*] Dumping NTLM hashes...' },
-    { at: 842, html:'<span class="c-dim">Administrator:</span><span style="color:#c084fc">500:aad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::</span>' },
-    { at: 858, html:'<span class="c-dim">victim:       </span><span style="color:#c084fc">1001:aad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c:::</span>' },
-    { at: 876, cls:'c-green', text:'[+] 4 accounts compromised' },
-
-    // ── pivot + persistence
-    { at: 928, cls:'c-green', text:'C:\\Windows\\system32> cd C:\\Users\\victim' },
-    { at: 955, cls:'c-yellow',text:'[*] Planting persistence — HKLM\\Run registry key...' },
-    { at: 980, cls:'c-green', text:'[+] Backdoor installed. Session encrypted. 3-hop TOR routed.' },
-    { at:1005, html:'<span class="c-dim">malworld\\mal-operator  SID: S-1-5-21-3457823498-1337-4444-500</span>' },
-    { at:1028, html:'<span class="c-dim">Logon: </span><span class="c-green">' + NOW + ' UTC</span>' },
-  ]);
-
-  // ── ACCESS GRANTED banner at 1180ms
-  setTimeout(() => {
-    printBlank();
-    [
-      { t:'╔══════════════════════════════════════════════════════════╗', bold:false },
-      { t:'║  ACCESS GRANTED — MALWORLD TERMINAL v2.0                ║', bold:true  },
-      { t:"║  You're inside. Type 'help' to begin reconnaissance.    ║", bold:false },
-      { t:'╚══════════════════════════════════════════════════════════╝', bold:false },
-    ].forEach((l, i) => {
-      setTimeout(() => {
-        const el = document.createElement('span');
-        el.className = 'line c-green' + (l.bold ? ' bold' : '');
-        el.style.cssText = 'animation:access-pulse 1.6s ease-in-out infinite;';
-        el.textContent = l.t;
-        output.appendChild(el);
-        output.scrollTop = output.scrollHeight;
-      }, i * 50);
-    });
-  }, 1180);
-
-  // ── unlock at 1600ms
-  setTimeout(() => {
-    printBlank();
-    document.body.classList.remove('booting');
-    input.disabled = false;
-    input.focus();
-  }, 1600);
-
-  // inject keyframe so inline style animation works
-  const ks = document.createElement('style');
-  ks.textContent = `@keyframes access-pulse{0%,100%{text-shadow:0 0 6px #00ff41,0 0 20px #00ff4155}50%{text-shadow:0 0 18px #00ff41,0 0 48px #00ff41bb}}`;
-  document.head.appendChild(ks);
 
 })();
 </script>
