@@ -10,22 +10,107 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
   <style>
+    /* ── OVERLAY ── */
+    #attack-overlay {
+      position: fixed; inset: 0;
+      background: #000;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      z-index: 9999;
+    }
+    #attack-overlay .target-line {
+      font-family: 'JetBrains Mono', monospace;
+      color: #006b1b; font-size: 13px; letter-spacing: .1em;
+      margin-bottom: 48px;
+    }
+    #attack-overlay .target-line span { color: #00ff41; }
+    #btn-init-attack {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px; font-weight: 700;
+      color: #00ff41; background: transparent;
+      border: 2px solid #00ff41; padding: 16px 52px;
+      cursor: pointer; text-transform: uppercase;
+      letter-spacing: .18em;
+      box-shadow: 0 0 18px #00ff4144, inset 0 0 18px #00ff4108;
+      transition: all .15s ease;
+      outline: none; position: relative;
+    }
+    #btn-init-attack::before {
+      content: '> '; color: #006b1b;
+    }
+    #btn-init-attack:hover {
+      background: #00ff41; color: #000;
+      box-shadow: 0 0 40px #00ff41, inset 0 0 40px #00ff4133;
+    }
+    #btn-init-attack:active { transform: scale(.97); }
+    .overlay-hint {
+      font-family: 'JetBrains Mono', monospace;
+      color: #1a4d1a; font-size: 12px;
+      margin-top: 28px; letter-spacing: .06em;
+    }
+
+    /* ── CRACK BAR ── */
+    #crack-bar-wrap {
+      display: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; color: #00ff41;
+      background: #000; padding: 10px 20px;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      border-top: 1px solid #006b1b;
+      z-index: 100;
+    }
+    #crack-bar-fill  { color: #00ff41; }
+    #crack-bar-empty { color: #1a2a1a; }
+    #crack-bar-pct   { color: #ffcc00; margin-left: 10px; }
+    #crack-bar-label { color: #555; margin-right: 8px; }
+
+    /* ── ACCESS GRANTED glow ── */
     @keyframes access-pulse {
-      0%,100% { text-shadow: 0 0 6px #00ff41, 0 0 20px #00ff4166; }
-      50%      { text-shadow: 0 0 16px #00ff41, 0 0 44px #00ff41bb; }
+      0%,100% { text-shadow: 0 0 8px #00ff41, 0 0 24px #00ff4166; }
+      50%      { text-shadow: 0 0 22px #00ff41, 0 0 60px #00ff41cc; }
     }
+    .access-line { animation: access-pulse 1.5s ease-in-out infinite; }
+
+    /* ── CRT flicker on boot ── */
     @keyframes flicker {
-      0%,100%{ opacity:1 } 10%{ opacity:.75 } 20%{ opacity:1 } 55%{ opacity:.88 } 65%{ opacity:1 }
+      0%,100%{ opacity:1 } 8%{ opacity:.7 } 18%{ opacity:1 } 52%{ opacity:.85 } 62%{ opacity:1 }
     }
-    body.booting #terminal-wrapper { animation: flicker .45s ease .05s 1; }
-    #btn-init-attack:hover { background: #00ff41; color: #000; box-shadow: 0 0 25px #00ff41; }
+    body.booting #terminal-wrapper { animation: flicker .5s ease .1s 1; }
+
+    /* ── GLITCH on "SYSTEM COMPROMISED" ── */
+    @keyframes glitch-a {
+      0%   { clip-path: inset(0 0 92% 0); transform: translateX(-3px); }
+      25%  { clip-path: inset(40% 0 40% 0); transform: translateX(3px); }
+      50%  { clip-path: inset(80% 0 5% 0);  transform: translateX(-2px); }
+      75%  { clip-path: inset(15% 0 70% 0); transform: translateX(2px); }
+      100% { clip-path: inset(0 0 92% 0);   transform: translateX(0); }
+    }
+    .glitch {
+      position: relative; display: inline-block;
+    }
+    .glitch::before, .glitch::after {
+      content: attr(data-t);
+      position: absolute; left: 0; top: 0;
+      width: 100%; pointer-events: none;
+    }
+    .glitch::before { color: #ff3333; animation: glitch-a .35s steps(1) 1; }
+    .glitch::after  { color: #00d4ff; animation: glitch-a .35s steps(1) .08s 1; }
   </style>
 </head>
 <body class="booting">
 
-<div id="attack-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; display:flex; justify-content:center; align-items:center; z-index:9999; flex-direction:column;">
-  <button id="btn-init-attack" style="padding:15px 40px; font-family:'JetBrains Mono',monospace; font-size:24px; font-weight:bold; color:#00ff41; background:transparent; border:2px solid #00ff41; cursor:pointer; text-transform:uppercase; box-shadow:0 0 15px #00ff4144; transition:all 0.2s; outline:none;">Initiate Attack</button>
-  <p style="color:#00ff41; font-family:'JetBrains Mono',monospace; margin-top:20px; opacity:0.7; font-size:14px;">[ Target: MALWORLD ]</p>
+<!-- ══ ATTACK OVERLAY ══ -->
+<div id="attack-overlay">
+  <p class="target-line">TARGET: <span>192.168.1.47</span> &nbsp;|&nbsp; PORT: <span>445</span> &nbsp;|&nbsp; OS: <span>Windows 10 x64</span></p>
+  <button id="btn-init-attack">Initiate Attack</button>
+  <p class="overlay-hint">// click to begin penetration sequence</p>
+</div>
+
+<!-- ══ CRACK PROGRESS BAR (fixed bottom) ══ -->
+<div id="crack-bar-wrap">
+  <span id="crack-bar-label">CRACKING</span>
+  <span id="crack-bar-fill"></span><span id="crack-bar-empty"></span>
+  <span id="crack-bar-pct">0%</span>
 </div>
 
 <canvas id="matrix-canvas"></canvas>
@@ -47,7 +132,7 @@
   <div id="input-row">
     <span id="prompt-label">C:\\Users\\victim&gt;&nbsp;</span>
     <input id="cmd-input" type="text" autocomplete="off" autocorrect="off"
-           autocapitalize="none" spellcheck="false" autofocus
+           autocapitalize="none" spellcheck="false"
            aria-label="Terminal input" />
   </div>
 </div>
@@ -86,12 +171,19 @@
   resizeMatrix(); drawMatrix();
 
   /* ─── DOM ─── */
-  const output = document.getElementById('output');
-  const input  = document.getElementById('cmd-input');
-  const wrapEl = document.getElementById('terminal-wrapper');
+  const output  = document.getElementById('output');
+  const input   = document.getElementById('cmd-input');
+  const wrapEl  = document.getElementById('terminal-wrapper');
+  const overlay = document.getElementById('attack-overlay');
+  const barWrap = document.getElementById('crack-bar-wrap');
+  const barFill = document.getElementById('crack-bar-fill');
+  const barMpty = document.getElementById('crack-bar-empty');
+  const barPct  = document.getElementById('crack-bar-pct');
+  const barLbl  = document.getElementById('crack-bar-label');
+
   document.getElementById('btn-close').addEventListener('click', () => runCommand('exit'));
 
-  /* ─── HELPERS ─── */
+  /* ─── PRINT HELPERS ─── */
   function span(cls, text) {
     const s = document.createElement('span');
     s.className = 'line ' + (cls || '');
@@ -114,7 +206,7 @@
   function printRaw(html)     { print(raw(html)); }
   function printBlank()       { print(blank()); }
 
-  /* ─── TYPEWRITER (used by page modules) ─── */
+  /* ─── TYPEWRITER (for page modules) ─── */
   function typewrite(lines, charDelay, lineDelay, onDone) {
     let li = 0;
     function nextLine() {
@@ -138,7 +230,7 @@
     nextLine();
   }
 
-  /* ─── HISTORY ─── */
+  /* ─── HISTORY & COMMANDS ─── */
   const history = []; let histIdx = -1;
   const COMMANDS = ['help','about','skills','projects','experience','education','tools','social','contact','whoami','ls','clear','exit'];
   window.exited = false;
@@ -190,7 +282,7 @@
       input.value = ''; runCommand(val);
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx]; setTimeout(() => input.setSelectionRange(input.value.length, input.value.length), 0); }
+      if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx]; setTimeout(()=> input.setSelectionRange(input.value.length, input.value.length),0); }
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
       if (histIdx > 0) { histIdx--; input.value = history[histIdx]; } else { histIdx = -1; input.value = ''; }
@@ -207,138 +299,244 @@
   });
   wrapEl.addEventListener('click', () => { if (!window.getSelection().toString()) input.focus(); });
 
-  /* ════════════════════════════════════════════════════
-     BOOT — Triggered by button click
-  ════════════════════════════════════════════════════ */
+  /* ════════════════════════════════════════════════════════
+     BOOT ENGINE
+  ════════════════════════════════════════════════════════ */
   input.disabled = true;
 
-  const btnAttack = document.getElementById('btn-init-attack');
-  const overlay = document.getElementById('attack-overlay');
+  // ── Utilities
+  function rnd(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+  function hex32()   { return Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8,'0').toUpperCase(); }
+  function hex8row() { return Array.from({length:16}, ()=> Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(' '); }
+  function randIP()  { return `${rnd(1,254)}.${rnd(0,255)}.${rnd(0,255)}.${rnd(1,254)}`; }
+  function randHash(len) { return Array.from({length:len}, ()=>'0123456789abcdef'[rnd(0,15)]).join(''); }
+  function randAddr(){ return `0x${Math.floor(Math.random()*0xffff).toString(16).padStart(4,'0')}`; }
 
-  btnAttack.addEventListener('click', () => {
-    overlay.style.display = 'none';
-    startBootSequence();
+  // ── Fire lines at absolute timestamps
+  function fire(lines) {
+    lines.forEach(l => setTimeout(() => {
+      l.html !== undefined ? printRaw(l.html) : println(l.cls||'', l.text||'');
+    }, l.at));
+  }
+
+  // ── Animated bottom crack bar (runs from startMs → endMs)
+  function runCrackBar(label, startMs, endMs, onDone) {
+    const TOTAL = 28;
+    const duration = endMs - startMs;
+    setTimeout(() => {
+      barLbl.textContent = label + ' ';
+      barWrap.style.display = 'block';
+      let cur = 0;
+      const iv = setInterval(() => {
+        cur++;
+        barFill.textContent = '█'.repeat(cur);
+        barMpty.textContent = '░'.repeat(TOTAL - cur);
+        barPct.textContent  = Math.round((cur/TOTAL)*100) + '%';
+        if (cur >= TOTAL) {
+          clearInterval(iv);
+          setTimeout(() => {
+            barWrap.style.display = 'none';
+            if (onDone) onDone();
+          }, 120);
+        }
+      }, duration / TOTAL);
+    }, startMs);
+  }
+
+  // ── BUTTON click → start
+  document.getElementById('btn-init-attack').addEventListener('click', () => {
+    overlay.style.transition = 'opacity .3s';
+    overlay.style.opacity = '0';
+    setTimeout(() => { overlay.style.display = 'none'; startBoot(); }, 300);
   });
 
-  function startBootSequence() {
+  function startBoot() {
     const NOW = new Date().toISOString().replace('T',' ').slice(0,19);
 
-    // schedule({ at, cls, text }) or schedule({ at, html })
-    function fire(lines) {
-      lines.forEach(l => setTimeout(() => {
-        l.html !== undefined ? printRaw(l.html) : println(l.cls || '', l.text || '');
-      }, l.at));
-    }
-
-    const bootLines = [
-      // ── windows banner
+    /* ── PHASE 1: Recon + Exploit  (0 – 1100ms) ── */
+    fire([
       { at:   0, cls:'',       text:'Microsoft Windows [Version 10.0.19045.4170]' },
-      { at:  30, cls:'c-dim',  text:'(c) Microsoft Corporation. All rights reserved.' },
+      { at:  28, cls:'c-dim',  text:'(c) Microsoft Corporation. All rights reserved.' },
 
-      // ── recon noise
-      { at:  90, cls:'c-dim',  text:'C:\\> nmap -sS -sV --open 192.168.1.47' },
-      { at: 120, cls:'c-yellow',text:'[*] Nmap 7.94 — scanning 192.168.1.47 (65535 ports)...' },
-      { at: 148, html:'<span class="c-green">22/tcp   open  ssh</span>   OpenSSH 8.2p1 Ubuntu 20.04' },
-      { at: 165, html:'<span class="c-green">80/tcp   open  http</span>  Apache httpd 2.4.51' },
-      { at: 182, html:'<span class="c-green">445/tcp  open  smb</span>   <span class="c-red">MS17-010 EternalBlue — VULNERABLE</span>' },
-      { at: 200, html:'<span class="c-green">3389/tcp open  rdp</span>   Microsoft Terminal Services' },
-      { at: 218, cls:'c-red bold', text:'[!] CRITICAL: SMB remote code execution — no auth required' },
+      { at:  80, cls:'c-dim',      text:'C:\\> nmap -sS -sV -O --script vuln 192.168.1.47' },
+      { at: 112, cls:'c-yellow',   text:'[*] Nmap 7.94 — scanning 192.168.1.47 (65535 ports)...' },
+      { at: 138, html:'<span class="c-green">22/tcp   open  ssh</span>    OpenSSH 8.2p1 Ubuntu 20.04.3' },
+      { at: 154, html:'<span class="c-green">80/tcp   open  http</span>   Apache httpd 2.4.51 ((Debian))' },
+      { at: 170, html:'<span class="c-green">443/tcp  open  https</span>  OpenSSL 1.1.1f' },
+      { at: 186, html:'<span class="c-green">445/tcp  open  smb</span>    <span class="c-red bold">MS17-010 EternalBlue ← CRITICAL</span>' },
+      { at: 204, html:'<span class="c-green">3389/tcp open  rdp</span>    Microsoft Terminal Services' },
+      { at: 220, cls:'c-dim',    text:'OS: Windows 10 Pro 19045  Kernel: 10.0.19045  Arch: x86_64' },
+      { at: 244, cls:'c-red bold', text:'[!] CRITICAL: Unauthenticated RCE on SMB port 445 confirmed' },
 
-      // ── exploit
-      { at: 270, cls:'c-green', text:'msf6 exploit(ms17_010_eternalblue) > run' },
-      { at: 298, cls:'c-yellow',text:'[*] Started reverse TCP handler on 10.0.0.9:4444' },
-      { at: 322, cls:'c-yellow',text:'[*] Sending exploit buffer to 192.168.1.47:445...' },
-      { at: 348, cls:'c-yellow',text:'[*] Kernel overflow triggered — injecting shellcode...' },
-      { at: 375, cls:'c-yellow',text:'[*] Uploading Meterpreter stage (200774 bytes)...' },
-      { at: 402, cls:'c-green bold', text:'[+] Meterpreter session 1 opened  10.0.0.9:4444 → 192.168.1.47:49152' },
+      { at: 310, cls:'c-green',      text:'msf6 > use exploit/windows/smb/ms17_010_eternalblue' },
+      { at: 338, cls:'c-dim',        text:'RHOSTS => 192.168.1.47   LHOST => 10.0.0.9   LPORT => 4444' },
+      { at: 362, cls:'c-green bold', text:'msf6 exploit(ms17_010_eternalblue) > run' },
+      { at: 392, cls:'c-yellow',     text:'[*] Started reverse TCP handler on 10.0.0.9:4444' },
+      { at: 418, cls:'c-yellow',     text:'[*] Sending exploit buffer to 192.168.1.47:445...' },
+      { at: 444, cls:'c-yellow',     text:'[*] Kernel pool overflow — injecting shellcode at 0xfffffa80...' },
+      { at: 470, cls:'c-yellow',     text:'[*] Uploading Meterpreter stage (200774 bytes)...' },
+      { at: 500, cls:'c-green bold', text:'[+] Meterpreter session 1 opened  10.0.0.9:4444 → 192.168.1.47:49152' },
 
-      // ── shell + whoami
-      { at: 455, cls:'c-green',     text:'meterpreter > shell' },
-      { at: 475, cls:'c-dim',       text:'Process 4821 created.  Channel 1 created.' },
-      { at: 510, cls:'c-green',     text:'C:\\Windows\\system32> whoami' },
-      { at: 535, cls:'c-cyan bold', text:'nt authority\\system' },
+      { at: 550, cls:'c-green',     text:'meterpreter > shell' },
+      { at: 572, cls:'c-dim',       text:'Process 4821 created.  Channel 1 created.' },
+      { at: 602, cls:'c-green',     text:'C:\\Windows\\system32> whoami' },
+      { at: 626, cls:'c-cyan bold', text:'nt authority\\system' },
+      { at: 654, cls:'c-red bold',  text:'[!] SYSTEM-LEVEL ACCESS OBTAINED' },
 
-      // ── hex / decrypt noise
-      { at: 590, cls:'c-yellow', text:'[*] Decrypting operator profile — AES-256-GCM...' },
-      { at: 612, html:'<span class="c-dim">0x0000  </span><span style="color:#c084fc">4d 5a 90 00 03 00 b4 09  4c 21 54 68 69 73 20 70</span>  <span style="color:#00d4ff">MZ......L!This p</span>' },
-      { at: 628, html:'<span class="c-dim">0x0010  </span><span style="color:#c084fc">72 6f 67 72 61 6d 20 63  61 6e 6e 6f 74 20 62 65</span>  <span style="color:#00d4ff">rogram cannot be</span>' },
-      { at: 644, html:'<span class="c-dim">0x0020  </span><span style="color:#c084fc">20 72 75 6e 20 69 6e 20  44 4f 53 20 6d 6f 64 65</span>  <span style="color:#00d4ff"> run in DOS mode</span>' },
-      { at: 660, html:'<span style="color:#00d4ff">DECRYPTED → </span><span class="c-green">Arya Koner  |  Mr. Malman  |  Cybersecurity Researcher</span>' },
+      { at: 710, cls:'c-green',  text:'C:\\Windows\\system32> whoami /priv' },
+      { at: 732, html:'<span class="c-yellow">SeDebugPrivilege            </span><span class="c-green bold">ENABLED</span>' },
+      { at: 748, html:'<span class="c-yellow">SeImpersonatePrivilege      </span><span class="c-green bold">ENABLED</span>' },
+      { at: 764, html:'<span class="c-yellow">SeTakeOwnershipPrivilege    </span><span class="c-green bold">ENABLED</span>' },
+      { at: 780, html:'<span class="c-yellow">SeLoadDriverPrivilege       </span><span class="c-green bold">ENABLED</span>' },
+      { at: 796, html:'<span class="c-yellow">SeShutdownPrivilege         </span><span class="c-green bold">ENABLED</span>' },
 
-      // ── privs
-      { at: 715, cls:'c-green',    text:'C:\\Windows\\system32> whoami /priv' },
-      { at: 738, html:'<span class="c-yellow">SeDebugPrivilege          </span><span class="c-green bold">ENABLED</span>' },
-      { at: 754, html:'<span class="c-yellow">SeImpersonatePrivilege    </span><span class="c-green bold">ENABLED</span>' },
-      { at: 770, html:'<span class="c-yellow">SeTakeOwnershipPrivilege  </span><span class="c-green bold">ENABLED</span>' },
+      { at: 850, cls:'c-yellow',  text:'[*] Dumping SAM / NTLM hashes via secretsdump...' },
+      { at: 874, html:`<span class="c-dim">Administrator:</span><span style="color:#c084fc">500:aad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::</span>` },
+      { at: 890, html:`<span class="c-dim">victim:       </span><span style="color:#c084fc">1001:aad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c:::</span>` },
+      { at: 906, html:`<span class="c-dim">guest:        </span><span style="color:#c084fc">501:aad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::</span>` },
+      { at: 922, cls:'c-green',   text:'[+] 4 accounts extracted — cracking offline...' },
 
-      // ── hash dump
-      { at: 820, cls:'c-yellow', text:'[*] Dumping NTLM hashes...' },
-      { at: 842, html:'<span class="c-dim">Administrator:</span><span style="color:#c084fc">500:aad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::</span>' },
-      { at: 858, html:'<span class="c-dim">victim:       </span><span style="color:#c084fc">1001:aad3b435b51404ee:8846f7eaee8fb117ad06bdd830b7586c:::</span>' },
-      { at: 876, cls:'c-green', text:'[+] 4 accounts compromised' },
+      { at: 980, cls:'c-green', text:'C:\\Windows\\system32> cd C:\\Users\\victim' },
+      { at:1005, html:`<span class="c-dim">Logon: </span><span class="c-green">${NOW} UTC  SID: S-1-5-21-3457823498-1337-4444-500</span>` },
+    ]);
 
-      // ── pivot + persistence
-      { at: 928, cls:'c-green', text:'C:\\Windows\\system32> cd C:\\Users\\victim' },
-      { at: 955, cls:'c-yellow',text:'[*] Planting persistence — HKLM\\Run registry key...' },
-      { at: 980, cls:'c-green', text:'[+] Backdoor installed. Session encrypted. 3-hop TOR routed.' },
-      { at:1005, html:'<span class="c-dim">malworld\\mal-operator  SID: S-1-5-21-3457823498-1337-4444-500</span>' },
-      { at:1028, html:'<span class="c-dim">Logon: </span><span class="c-green">' + NOW + ' UTC</span>' },
+    /* ── CRACK BAR 1: NTLM  (1100ms → 2000ms) ── */
+    runCrackBar('[*] CRACKING NTLM HASHES — hashcat -m 1000', 1100, 2000);
+
+    /* ── PHASE 2: Hash crack noise + AES decrypt  (1100ms – 2600ms) ── */
+    const phase2 = [];
+    const crackWords = [
+      'password123','P@ssw0rd!','letmein','admin2024','Qwerty@99',
+      'summer2023!','Mal@W0rld','hunter2','monkey!1','Welcome1',
+    ];
+    let t = 1100;
+    for (let i = 0; i < 36; i++) {
+      t += rnd(18, 38);
+      const found = i % 7 === 0;
+      if (found) {
+        const w = crackWords[rnd(0, crackWords.length-1)];
+        phase2.push({ at: t, html: `<span class="c-green bold">[CRACKED] ${randHash(32)} → <span style="color:#ffcc00">${w}</span></span>` });
+      } else {
+        phase2.push({ at: t, html: `<span class="c-dim">[*] testing: ${randHash(32)} ...</span>` });
+      }
+    }
+    // AES decrypt noise
+    t = 2050;
+    phase2.push({ at: t,      cls:'c-yellow', text:'[*] Decrypting operator profile — AES-256-GCM...' });
+    phase2.push({ at: t+28,  html:`<span class="c-dim">KEY: </span><span style="color:#c084fc">3a7f9c2e1d8b4f6a0e5c3d2b1a9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b</span>` });
+    phase2.push({ at: t+52,  html:`<span class="c-dim">IV:  </span><span style="color:#c084fc">0f1e2d3c4b5a6978851a2b3c</span>` });
+    for (let r = 0; r < 6; r++) {
+      const addr = (r * 0x10).toString(16).padStart(4,'0');
+      phase2.push({ at: t+80+r*20, html:`<span class="c-dim">0x${addr}  </span><span style="color:#c084fc">${hex8row()}</span>` });
+    }
+    phase2.push({ at: t+220, html:`<span style="color:#00d4ff">DECRYPTED → </span><span class="c-green bold">Arya Koner  |  Mr. Malman  |  Cybersecurity Researcher</span>` });
+    fire(phase2);
+
+    /* ── CRACK BAR 2: AES key  (2350ms → 3100ms) ── */
+    runCrackBar('[*] BRUTE-FORCE AES KEY SCHEDULE  ', 2350, 3100);
+
+    /* ── PHASE 3: Rapid fire flood  (2600ms – 4800ms) ── */
+    const phase3 = [];
+    const pivotIPs = [randIP(), randIP(), randIP()];
+    const modules = [
+      'post/multi/recon/local_exploit_suggester',
+      'post/windows/gather/smart_hashdump',
+      'post/windows/gather/credentials/credential_collector',
+      'post/windows/manage/persistence',
+      'auxiliary/scanner/portscan/tcp',
+    ];
+    // mixed rapid commands
+    const rapidPool = [
+      () => ({ html: `<span class="c-dim">0x${rnd(0,0xffff).toString(16).padStart(4,'0')}  </span><span style="color:#c084fc">${hex8row()}</span>` }),
+      () => ({ cls:'c-yellow', text:`[*] Scanning internal subnet ${pivotIPs[rnd(0,2)]}/${rnd(24,28)}...` }),
+      () => ({ cls:'c-green',  text:`[+] Host up: ${randIP()}  ttl=${rnd(60,128)}  latency=${rnd(1,12)}ms` }),
+      () => ({ html: `<span class="c-dim">[*] module: </span><span class="c-cyan">${modules[rnd(0,modules.length-1)]}</span>` }),
+      () => ({ cls:'c-dim',    text:`[*] PID: ${rnd(1000,9999)}  injecting into ${['lsass.exe','svchost.exe','explorer.exe','winlogon.exe'][rnd(0,3)]}` }),
+      () => ({ html: `<span class="c-yellow">[*] Token impersonation: </span><span class="c-cyan">NT AUTHORITY\\SYSTEM → DOMAIN\\${['admin','sqlsvc','webadmin','backup'][rnd(0,3)]}</span>` }),
+      () => ({ cls:'c-dim',    text:`OVERFLOW 0x${hex32()}: ret=0x${hex32()} eip=0x${hex32()}` }),
+      () => ({ html: `<span style="color:#c084fc">${randHash(64)}</span>` }),
+      () => ({ cls:'c-green',  text:`[+] Firewall rule deleted: ${['inbound','outbound'][rnd(0,1)]} block ${rnd(1024,65535)}/tcp` }),
+      () => ({ cls:'c-yellow', text:`[*] Pivoting via ${randIP()} — hop ${rnd(1,4)} of 4` }),
+      () => ({ cls:'c-dim',    text:`[*] Reading HKLM\\SAM\\Domains\\Account\\Users\\${rnd(100,999)}` }),
+      () => ({ html: `<span class="c-green">[+] lateral: </span><span class="c-cyan">${randIP()}</span> <span class="c-green">VULNERABLE — SMBv1 unsigned</span>` }),
+      () => ({ cls:'c-dim',    text:`[*] keylogger capture: ${rnd(120,9000)} keystrokes buffered` }),
+      () => ({ cls:'c-yellow', text:`[*] SSL cert pinning bypassed — MITM active on ${randIP()}` }),
+      () => ({ cls:'c-dim',    text:`[*] DKOM rootkit: hiding PID ${rnd(1000,9999)} from task list` }),
+      () => ({ cls:'c-green',  text:`[+] Credential relay to ${randIP()} — NTLMv2 captured` }),
+      () => ({ html: `<span class="c-dim">STACK TRACE: </span><span style="color:#c084fc">0x${hex32()} 0x${hex32()} 0x${hex32()} 0x${hex32()}</span>` }),
     ];
 
-    // ── SUPER FAST CRACKING (1100ms to 5500ms)
-    let cTime = 1100;
-    while (cTime < 5400) {
-      cTime += (Math.random() * 20 + 5); // very fast intervals
-      const hex = Array.from({length:8}, () => Math.floor(Math.random()*256).toString(16).padStart(2,'0')).join(' ');
-      const types = [
-        `[!] OVERFLOW: buffer injected at 0x${Math.floor(Math.random()*0xffffffff).toString(16)}`,
-        `[*] CRACKING SHA-256: ${Math.random().toString(36).substring(2)}...`,
-        `<span class="c-dim">0x${Math.floor(Math.random()*0xffff).toString(16).padStart(4,'0')}  </span><span style="color:#c084fc">${hex}</span>`,
-        `<span class="c-dim">0x${Math.floor(Math.random()*0xffff).toString(16).padStart(4,'0')}  </span><span style="color:#c084fc">${hex}</span>`,
-        `[+] Segment mapped. Executing shellcode payload...`,
-        `<span class="c-yellow">Decrypting block ${Math.floor(Math.random()*10000)}...</span>`
-      ];
-      bootLines.push({ at: Math.floor(cTime), html: types[Math.floor(Math.random()*types.length)] });
+    let ft = 2600;
+    for (let i = 0; i < 90; i++) {
+      ft += rnd(18, 35);
+      phase3.push({ at: ft, ...rapidPool[rnd(0, rapidPool.length-1)]() });
     }
+    fire(phase3);
 
-    bootLines.push({ at: 5450, cls: 'c-green bold', text: '[+] SYSTEM COMPROMISED. ALL SECURITY MEASURES DISABLED.' });
-    bootLines.push({ at: 5500, cls: 'c-yellow', text: '[*] Establishing secure tunnel...' });
-    bootLines.push({ at: 5550, cls: 'c-green', text: '[+] Connection established to MALWORLD core.' });
+    /* ── CRACK BAR 3: RSA 2048  (3200ms → 4400ms) ── */
+    runCrackBar('[*] FACTORING RSA-2048 PRIVATE KEY ', 3200, 4400);
 
-    fire(bootLines);
+    /* ── PHASE 4: Final breach + persistence  (4850ms – 5600ms) ── */
+    fire([
+      { at:4850, cls:'c-yellow', text:'[*] Planting persistence — HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run' },
+      { at:4880, cls:'c-yellow', text:'[*] Deploying encrypted reverse shell on startup...' },
+      { at:4910, cls:'c-green',  text:'[+] Backdoor registered — svchost32.exe will respawn on reboot' },
+      { at:4940, cls:'c-yellow', text:'[*] Exfiltrating target profile → 3-hop TOR → MALWORLD core...' },
+      { at:4968, html:`<span class="c-dim">Route: </span><span class="c-cyan">10.0.0.9 → ${randIP()} → ${randIP()} → ${randIP()} → MALWORLD</span>` },
+      { at:4996, cls:'c-green',  text:'[+] Exfiltration complete — 847 MB transferred' },
+      { at:5026, cls:'c-yellow', text:'[*] Covering tracks — clearing event logs...' },
+      { at:5055, cls:'c-dim',    text:'[*] Wiped: Security.evtx  System.evtx  Application.evtx' },
+      { at:5084, cls:'c-green',  text:'[+] Evidence erased. Session untraceable.' },
+    ]);
 
-    // ── ACCESS GRANTED banner at 5800ms
+    /* ── CRACK BAR 4: erasing logs  (5110ms → 5500ms) ── */
+    runCrackBar('[*] WIPING FORENSIC ARTEFACTS     ', 5110, 5500);
+
+    /* ── SYSTEM COMPROMISED flash  (5560ms) ── */
     setTimeout(() => {
       printBlank();
-      [
-        { t:'╔══════════════════════════════════════════════════════════╗', bold:false },
-        { t:'║  You successfully hacked the machine                     ║', bold:true  },
-        { t:'║  and now you can enter malworld                          ║', bold:false },
-        { t:'╚══════════════════════════════════════════════════════════╝', bold:false },
-      ].forEach((l, i) => {
+      const glEl = document.createElement('span');
+      glEl.className = 'line c-red bold glitch';
+      glEl.setAttribute('data-t', '[!] SYSTEM COMPROMISED. ALL DEFENCES OFFLINE.');
+      glEl.textContent = '[!] SYSTEM COMPROMISED. ALL DEFENCES OFFLINE.';
+      output.appendChild(glEl);
+      output.scrollTop = output.scrollHeight;
+    }, 5560);
+
+    setTimeout(() => {
+      println('c-green', '[*] Establishing secure encrypted tunnel to MALWORLD core...');
+    }, 5700);
+    setTimeout(() => {
+      println('c-green bold', '[+] Tunnel established. Welcome to MALWORLD.');
+    }, 5860);
+
+    /* ── ACCESS GRANTED banner  (6000ms) ── */
+    setTimeout(() => {
+      printBlank();
+      const bannerLines = [
+        { t: '╔══════════════════════════════════════════════════════════╗', bold: false },
+        { t: '║  You successfully hacked the machine.                   ║', bold: true  },
+        { t: "║  Enter MALWORLD. Type 'help' to begin.                  ║", bold: false },
+        { t: '╚══════════════════════════════════════════════════════════╝', bold: false },
+      ];
+      bannerLines.forEach((l, i) => {
         setTimeout(() => {
           const el = document.createElement('span');
-          el.className = 'line c-green' + (l.bold ? ' bold' : '');
-          el.style.cssText = 'animation:access-pulse 1.6s ease-in-out infinite;';
+          el.className = 'line c-green access-line' + (l.bold ? ' bold' : '');
           el.textContent = l.t;
           output.appendChild(el);
           output.scrollTop = output.scrollHeight;
-        }, i * 50);
+        }, i * 55);
       });
-    }, 5800);
+    }, 6000);
 
-    // ── unlock at 6200ms
+    /* ── UNLOCK INPUT  (6500ms) ── */
     setTimeout(() => {
       printBlank();
       document.body.classList.remove('booting');
       input.disabled = false;
       input.focus();
-    }, 6200);
-
-    // inject keyframe so inline style animation works
-    const ks = document.createElement('style');
-    ks.textContent = `@keyframes access-pulse{0%,100%{text-shadow:0 0 6px #00ff41,0 0 20px #00ff4155}50%{text-shadow:0 0 18px #00ff41,0 0 48px #00ff41bb}}`;
-    document.head.appendChild(ks);
+    }, 6500);
   }
 
 })();
